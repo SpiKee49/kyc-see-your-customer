@@ -1,10 +1,21 @@
-import { useNavigate } from "react-router-dom";
+import { useContext, useRef } from "react"
+import { useNavigate } from "react-router-dom"
+import { GlobalContex } from "."
 
-function Home() {
-  const navigate = useNavigate();
+function Landing() {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const { store, updateStore } = useContext(GlobalContex)
+
+  const navigate = useNavigate()
   function handleClick() {
-    console.log("clicked");
-    navigate("personal-info");
+    if (inputRef.current) {
+      updateStore({
+        ...store,
+        birthNumber: Number(inputRef.current.value)
+      })
+      console.log("STORE", store)
+      navigate("personal-info")
+    }
   }
 
   return (
@@ -12,6 +23,7 @@ function Home() {
       <label htmlFor="your-id" className="flex flex-col gap-1 w-full">
         Rodné číslo
         <input
+          ref={inputRef}
           className="p-2 rounded-md outline-sky-600 border-2 border-sky-600"
           type="number"
           name="your-id"
@@ -28,7 +40,7 @@ function Home() {
         Odoslať
       </button>
     </>
-  );
+  )
 }
 
-export default Home;
+export default Landing
