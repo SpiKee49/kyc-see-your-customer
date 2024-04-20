@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react"
 import { OcrInstance } from "../axios"
 
 const SCREENSHOT_TIME_INTERVAL_MS = 4000
-const VIDEO_HEIGHT = 720
-const VIDEO_WIDTH = 1280
+// const VIDEO_HEIGHT = 720
+// const VIDEO_WIDTH = 1280
 
 function DocumentScan() {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -34,8 +34,8 @@ function DocumentScan() {
     const constraints = {
       audio: false,
       video: {
-        width: VIDEO_WIDTH,
-        height: VIDEO_HEIGHT,
+        // width: VIDEO_WIDTH,
+        // height: VIDEO_HEIGHT,
         facingMode: "environment"
       }
     }
@@ -60,11 +60,6 @@ function DocumentScan() {
 
   async function runOCR(screenshotBase64: string) {
     setOcrIsRunning(true)
-    // const worker = await createWorker("slk")
-    // const ret = await worker.recognize(screenshotUri)
-    // setFoundText(ret.data.text)
-    // await worker.terminate()
-    // Using your personal API key + base64 image + custom language
     try {
       const formData = new FormData()
       formData.append("base64Image", screenshotBase64)
@@ -95,7 +90,7 @@ function DocumentScan() {
   }, [])
 
   return (
-    <div>
+    <div className="flex items-center flex-col">
       <h1>Video</h1>
       <div className={`relative w-full`}>
         <video className="w-full" autoPlay={true} ref={videoRef}></video>
@@ -110,7 +105,12 @@ function DocumentScan() {
             : "Umiestnite doklad na vyhradené miesto"}
         </span>
       </div>
-      <button onClick={() => getScreenshot()}>Take screenshot</button>
+      <button
+        className="mx-auto bg-sky-600 text-white rounded-sm my-5 p-10"
+        onClick={() => getScreenshot()}
+      >
+        Take screenshot
+      </button>
       <h1>Found text</h1>
       <p>{foundText}</p>
       {screenshot && (
