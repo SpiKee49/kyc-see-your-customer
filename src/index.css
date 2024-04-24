@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-white font-['Ubuntu'] text-sky-600 font-semibold text-2xl;
+    @apply font-['Ubuntu'] text-sky-600 font-semibold text-2xl bg-sky-100;
   }
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {

@@ -1,6 +1,6 @@
 import axios from "axios"
 
 export const OcrInstance = axios.create({
-  baseURL: "https://api.ocr.space/parse/image",
+  baseURL: "http://localhost:3000",
   responseType: "json"
 })
