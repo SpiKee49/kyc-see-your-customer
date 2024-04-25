@@ -1,77 +1,137 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState } from "react"
+import Button from "../components/Button"
+import { literal, z } from "zod"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+
+const FormSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  gender: z.literal("male").or(literal("female")),
+  dateOfBirth: z.string().date(),
+  street: z.string(),
+  city: z.string(),
+  ZIP: z
+    .number()
+    .gte(5, { message: "PSČ musí obsahovať 5 cifier" })
+    .lte(5, { message: "PSČ musí obsahovať 5 cifier" })
+})
+type FormSchemaType = z.infer<typeof FormSchema>
 
 function InformationForm() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    email: "",
-    phoneNumber: "",
-    address: ""
-  });
+    street: "",
+    gender: "",
+    dateOfBirth: "",
+    city: "",
+    ZIP: ""
+  })
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<FormSchemaType>({ resolver: zodResolver(FormSchema) })
+
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target
     setFormData({
       ...formData,
       [name]: value
-    });
-  };
+    })
+  }
 
   return (
-    <form className="flex flex-col gap-5">
+    <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
       <label className="text-sm">
-        First Name:
+        Krstné meno:
         <input
           className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
           type="text"
-          name="firstName"
           value={formData.firstName}
+          {...register("firstName")}
           onChange={handleChange}
           required
         />
       </label>
       <label className="text-sm">
-        Last Name:
+        Priezvisko:
         <input
           className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
           type="text"
-          name="lastName"
           value={formData.lastName}
+          {...register("lastName")}
           onChange={handleChange}
           required
         />
       </label>
       <label className="text-sm">
-        Email:
+        Dátum narodenia:
         <input
           className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
-          type="email"
-          name="email"
-          value={formData.email}
+          type="date"
+          value={formData.dateOfBirth}
+          {...register("dateOfBirth")}
           onChange={handleChange}
           required
         />
       </label>
       <label className="text-sm">
-        Phone Number:
+        Pohlavie:
+        <select
+          className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
+          value={formData.gender}
+          {...register("gender")}
+          onChange={handleChange}
+          required
+        >
+          <option value={"male"}>Muž</option>
+          <option value={"female"}>Žena</option>
+        </select>
+      </label>
+      <label className="text-sm">
+        Ulica a číslo domu:
         <input
           className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
           type="tel"
-          name="phoneNumber"
-          value={formData.phoneNumber}
+          value={formData.dateOfBirth}
+          {...register("dateOfBirth")}
+          onChange={handleChange}
+          required
+        />
+      </label>
+      <label className="text-sm">
+        Mesto:
+        <input
+          className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
+          type="text"
+          value={formData.ZIP}
+          {...register("ZIP")}
+          onChange={handleChange}
+          required
+        />
+      </label>
+      <label className="text-sm">
+        PSČ:
+        <input
+          className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
+          type="number"
+          value={formData.street}
+          {...register("street")}
           onChange={handleChange}
           required
         />
       </label>
 
-      <button
-        type="submit"
-        className="w-full border-sky-600 border-2 rounded-xl py-3 mt-2 text-sky-600 hover:bg-sky-600 hover:text-white transition-all duration-200 hover:border-sky-600"
-      >
-        Submit
-      </button>
+      <Button handleClick={() => {}} disabled={true}>
+        Odoslať
+      </Button>
     </form>
-  );
+  )
 }
 
-export default InformationForm;
+export default InformationForm

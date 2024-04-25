@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { GlobalContex } from ".."
 import { validateBirthNumber } from "../utils/validators"
 import Button from "../components/Button"
+import ErrorLabel from "../components/ErrorLabel"
 
 function Landing() {
   const inputRef = useRef<HTMLInputElement>(null)
@@ -40,11 +41,7 @@ function Landing() {
           placeholder="0000000000"
           onChange={e => handleInputChange(e.target.value)}
         />
-        {!valid && (
-          <small className="w-full text-center font-normal text-red-600 text-sm">
-            Neplátne rodné číslo
-          </small>
-        )}
+        {!valid && <ErrorLabel> Neplátne rodné číslo</ErrorLabel>}
         <small className="w-full text-center font-light text-sm">
           Vložte rodné číslo bez '/ '
         </small>
