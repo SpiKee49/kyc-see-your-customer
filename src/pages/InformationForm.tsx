@@ -1,33 +1,17 @@
-import { ChangeEvent, useState } from "react"
 import Button from "../components/Button"
-import { literal, z } from "zod"
-import { useForm } from "react-hook-form"
+import { SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-
-const FormSchema = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
-  gender: z.literal("male").or(literal("female")),
-  dateOfBirth: z.string().date(),
-  street: z.string(),
-  city: z.string(),
-  ZIP: z
-    .number()
-    .gte(5, { message: "PSČ musí obsahovať 5 cifier" })
-    .lte(5, { message: "PSČ musí obsahovať 5 cifier" })
-})
-type FormSchemaType = z.infer<typeof FormSchema>
+import ErrorLabel from "../components/ErrorLabel"
+import { FormSchema, FormSchemaType } from "../Types"
+import { useAppSelector } from "../store/store"
+import { useDispatch } from "react-redux"
+import { setPersonalInformations } from "../store/slice/globalSlice"
+import { useNavigate } from "react-router-dom"
 
 function InformationForm() {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    street: "",
-    gender: "",
-    dateOfBirth: "",
-    city: "",
-    ZIP: ""
-  })
+  const formData = useAppSelector(state => state.global.personalInformation)
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const {
     register,
@@ -35,99 +19,99 @@ function InformationForm() {
     formState: { errors }
   } = useForm<FormSchemaType>({ resolver: zodResolver(FormSchema) })
 
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target
-    setFormData({
-      ...formData,
-      [name]: value
-    })
+  const onSubmit: SubmitHandler<FormSchemaType> = data => {
+    console.log(data)
+    dispatch(setPersonalInformations(data))
+    navigate("/document-scan")
   }
 
   return (
-    <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+    <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
       <label className="text-sm">
         Krstné meno:
         <input
           className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
           type="text"
-          value={formData.firstName}
+          value={formData?.firstName}
           {...register("firstName")}
-          onChange={handleChange}
           required
         />
+        <ErrorLabel>{errors.firstName && errors.firstName?.message}</ErrorLabel>
       </label>
       <label className="text-sm">
         Priezvisko:
         <input
           className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
           type="text"
-          value={formData.lastName}
+          value={formData?.lastName}
           {...register("lastName")}
-          onChange={handleChange}
           required
         />
+        <ErrorLabel>{errors.lastName && errors.lastName?.message}</ErrorLabel>
       </label>
       <label className="text-sm">
         Dátum narodenia:
         <input
           className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
           type="date"
-          value={formData.dateOfBirth}
+          value={formData?.dateOfBirth}
           {...register("dateOfBirth")}
-          onChange={handleChange}
           required
         />
+        <ErrorLabel>
+          {errors.dateOfBirth && errors.dateOfBirth?.message}
+        </ErrorLabel>
       </label>
       <label className="text-sm">
         Pohlavie:
         <select
           className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
-          value={formData.gender}
+          value={formData?.gender}
           {...register("gender")}
-          onChange={handleChange}
           required
         >
           <option value={"male"}>Muž</option>
           <option value={"female"}>Žena</option>
         </select>
+        <ErrorLabel>{errors.gender && errors.gender?.message}</ErrorLabel>
       </label>
       <label className="text-sm">
         Ulica a číslo domu:
         <input
           className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
-          type="tel"
-          value={formData.dateOfBirth}
-          {...register("dateOfBirth")}
-          onChange={handleChange}
+          type="text"
+          value={formData?.streetNumber}
+          {...register("streetNumber")}
           required
         />
+        <ErrorLabel>
+          {errors.streetNumber && errors.streetNumber?.message}
+        </ErrorLabel>
       </label>
       <label className="text-sm">
         Mesto:
         <input
           className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
           type="text"
-          value={formData.ZIP}
-          {...register("ZIP")}
-          onChange={handleChange}
+          value={formData?.city}
+          {...register("city")}
           required
         />
+        <ErrorLabel>{errors.city && errors.city?.message}</ErrorLabel>
       </label>
       <label className="text-sm">
         PSČ:
         <input
           className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
-          type="number"
-          value={formData.street}
-          {...register("street")}
-          onChange={handleChange}
+          type="text"
+          value={formData?.ZIP}
+          {...register("ZIP")}
           required
         />
+        <ErrorLabel>{errors.ZIP && errors.ZIP?.message}</ErrorLabel>
       </label>
 
-      <Button handleClick={() => {}} disabled={true}>
+      <Button handleClick={() => {}} disabled={false}>
         Odoslať
       </Button>
     </form>

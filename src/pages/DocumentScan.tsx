@@ -1,5 +1,4 @@
 import { ChangeEvent, useState } from "react"
-// import { OcrInstance } from "../axios"
 import { createWorker } from "tesseract.js"
 
 // import { toBase64 } from "../utils/conversions"
@@ -20,7 +19,7 @@ function DocumentScan() {
     await worker.terminate()
     const text = ret.data.text
 
-    let tokenizer = text.split(/  \W+ /)
+    let tokenizer = text.split(/ \W+ /)
 
     setFoundText(tokenizer.map(item => item + "\n").toString())
     setOcrIsRunning(false)

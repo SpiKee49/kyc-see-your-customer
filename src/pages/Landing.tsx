@@ -1,25 +1,22 @@
-import { useContext, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { GlobalContex } from ".."
 import { validateBirthNumber } from "../utils/validators"
 import Button from "../components/Button"
 import ErrorLabel from "../components/ErrorLabel"
+import { setBirthNumber } from "../store/slice/globalSlice"
+import { useAppDispatch } from "../store/store"
 
 function Landing() {
   const inputRef = useRef<HTMLInputElement>(null)
+  const dispatch = useAppDispatch()
   const [buttonDisabled, setButtonDisabled] = useState(true)
   const [valid, setValid] = useState(true)
-  const { store, updateStore } = useContext(GlobalContex)
 
   const navigate = useNavigate()
   function handleClick() {
     if (inputRef.current) {
-      updateStore({
-        ...store,
-        birthNumber: Number(inputRef.current.value)
-      })
-      console.log("STORE", store)
-      navigate("personal-info")
+      dispatch(setBirthNumber(+inputRef.current.value))
+      navigate("/personal-info")
     }
   }
 
