@@ -1,5 +1,7 @@
 import { ChangeEvent, useState } from "react"
 import { createWorker } from "tesseract.js"
+import { clasifier } from "../utils/image-processing"
+import { number } from "zod"
 
 // import { toBase64 } from "../utils/conversions"
 // @ts-ignore
@@ -10,7 +12,7 @@ function DocumentScan() {
   const [ocrIsRunning, setOcrIsRunning] = useState(false)
   const [foundText, setFoundText] = useState("")
 
-  const [screenshot, setScreenshot] = useState<Blob | null>()
+  const [screenshot, setScreenshot] = useState<string | null>()
 
   async function runOCR(screenshotBase64: string) {
     setOcrIsRunning(true)
@@ -19,9 +21,12 @@ function DocumentScan() {
     await worker.terminate()
     const text = ret.data.text
 
-    let tokenizer = text.split(/ \W+ /)
-
-    setFoundText(tokenizer.map(item => item + "\n").toString())
+    let tokenizer = text
+      .split(/([a-zéčíťýžľščôá]+)|(\d+[\/]\d+|\d{2}[.]\d{2}[.]\d{4})/gi)
+      .filter(item => item !== undefined && item.length > 1)
+      .join(" ")
+    //TODO: analyze
+    setFoundText(tokenizer)
     setOcrIsRunning(false)
   }
 
@@ -41,6 +46,17 @@ function DocumentScan() {
       // Convert the image to grayscale
       ctx!.drawImage(img, 0, 0)
       const imageData = ctx!.getImageData(0, 0, canvas.width, canvas.height)
+
+      clasifier.classify(imageData, (err: any, results: Array<any>) => {
+        if (err) {
+          console.log("error")
+        }
+        // const data: Record<string, number> = {}
+        // results.map(item => {
+        //   data[item.label] = item.confidence
+        // })
+        console.log(results)
+      })
       const data = imageData.data
 
       const factor = (259 * (75 + 255)) / (255 * (259 - 90))
@@ -60,21 +76,25 @@ function DocumentScan() {
 
       // Set the grayscale image source
       const grayscaleSrc = canvas.toDataURL("image/png")
+      setScreenshot(grayscaleSrc)
       runOCR(grayscaleSrc)
     }
   }
 
   return (
-    <div className="flex items-center flex-col">
-      <h1>Upload and Display Image usign React Hook's</h1>
+    <div className="flex items-center flex-col gap-4">
+      <h1 className="text-center">
+        Nahrajte fotografiu osobného dokladu, na ktorom figuruje meno a vaša
+        fotografia.
+      </h1>
+      <p className="text-sm text-center">
+        Uistite sa, že nahraná fotografia je v dostatočnej kvalite a optimálnych
+        svetelných podmienkach tak aby boli údaje na nej čo najčítateľnejšie.
+      </p>
 
       {screenshot && (
         <div>
-          <img
-            alt="not found"
-            width={"500px"}
-            src={URL.createObjectURL(screenshot)}
-          />
+          <img alt="not found" width={"500px"} src={screenshot} />
           <br />
           <button onClick={() => setScreenshot(null)}>Remove</button>
         </div>
