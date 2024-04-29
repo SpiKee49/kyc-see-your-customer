@@ -12,6 +12,7 @@ import InformationForm from "./pages/InformationForm.tsx"
 import { store } from "./store/store.ts"
 import { Provider } from "react-redux"
 import DocumentScan from "./pages/DocumentScan.tsx"
+import FaceRecognition from "./pages/FaceRecognition.tsx"
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -19,6 +20,7 @@ const router = createBrowserRouter(
       <Route path="/" element={<Landing />} />
       <Route path="/personal-info" element={<InformationForm />} />
       <Route path="/document-scan" element={<DocumentScan />} />
+      <Route path="/face-recognition" element={<FaceRecognition />} />
     </>
   )
 )

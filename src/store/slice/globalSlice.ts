@@ -25,11 +25,17 @@ export const globalSlice = createSlice({
     },
     setPersonalInformations: (state, action: PayloadAction<FormSchemaType>) => {
       state.personalInformation = action.payload
+    },
+    updateImageUrl: (state, action: PayloadAction<string>) => {
+      state.documentInformation = {
+        imageUrl: action.payload
+      }
     }
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { setBirthNumber, setPersonalInformations } = globalSlice.actions
+export const { setBirthNumber, setPersonalInformations, updateImageUrl } =
+  globalSlice.actions
 
 export default globalSlice.reducer

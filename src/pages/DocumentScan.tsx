@@ -1,7 +1,7 @@
 import { ChangeEvent, useState } from "react"
 import { createWorker } from "tesseract.js"
 import { clasifier } from "../utils/image-processing"
-import { number } from "zod"
+import { useAppSelector } from "../store/store"
 
 // import { toBase64 } from "../utils/conversions"
 // @ts-ignore
@@ -9,24 +9,35 @@ import { number } from "zod"
 // const SCREENSHOT_TIME_INTERVAL_MS = 4000
 
 function DocumentScan() {
+  const personalInformation = useAppSelector(
+    state => state.global.personalInformation
+  )
   const [ocrIsRunning, setOcrIsRunning] = useState(false)
   const [foundText, setFoundText] = useState("")
 
   const [screenshot, setScreenshot] = useState<string | null>()
-
+  const [analysis, setAnalysis] = useState<Record<string, boolean>>()
   async function runOCR(screenshotBase64: string) {
     setOcrIsRunning(true)
     const worker = await createWorker("slk")
     const ret = await worker.recognize(screenshotBase64)
     await worker.terminate()
-    const text = ret.data.text
 
-    let tokenizer = text
+    const polishedText = ret.data.text
       .split(/([a-zéčíťýžľščôá]+)|(\d+[\/]\d+|\d{2}[.]\d{2}[.]\d{4})/gi)
       .filter(item => item !== undefined && item.length > 1)
       .join(" ")
     //TODO: analyze
-    setFoundText(tokenizer)
+    setFoundText(polishedText)
+
+    let analyze: Record<string, boolean> = {}
+    if (personalInformation == null) return
+
+    Object.entries(personalInformation).map(([key, value]) => {
+      analyze[key] = polishedText.includes(value)
+    })
+    console.log(analysis)
+    setAnalysis(analyze)
     setOcrIsRunning(false)
   }
 
@@ -34,49 +45,36 @@ function DocumentScan() {
     const file = event.target.files![0]
 
     const img = new Image()
-    img.src = URL.createObjectURL(file)
+    const imgSrc = URL.createObjectURL(file)
+    img.src = imgSrc
 
     img.onload = () => {
       const canvas = document.createElement("canvas")
       const ctx = canvas.getContext("2d")
-
-      canvas.width = img.width
-      canvas.height = img.height
-
-      // Convert the image to grayscale
-      ctx!.drawImage(img, 0, 0)
-      const imageData = ctx!.getImageData(0, 0, canvas.width, canvas.height)
-
-      clasifier.classify(imageData, (err: any, results: Array<any>) => {
+      img.width = img.naturalWidth
+      img.height = img.naturalHeight
+      setScreenshot(imgSrc)
+      clasifier.classify(img, (err: any, results: any) => {
         if (err) {
           console.log("error")
         }
+        console.log("results", results)
         // const data: Record<string, number> = {}
-        // results.map(item => {
+        // results.map((item: any) => {
         //   data[item.label] = item.confidence
         // })
-        console.log(results)
+        // console.log("updated", data)
       })
-      const data = imageData.data
 
-      const factor = (259 * (75 + 255)) / (255 * (259 - 90))
-      for (let i = 0; i < data.length; i += 4) {
-        const avg = (data[i] + data[i + 1] + data[i + 2]) / 3
-        data[i] = avg // Red
-        data[i + 1] = avg // Green
-        data[i + 2] = avg // Blue
-
-        // Apply contrast
-        data[i] = factor * (data[i] - 128) + 128
-        data[i + 1] = factor * (data[i + 1] - 128) + 128
-        data[i + 2] = factor * (data[i + 2] - 128) + 128
-      }
-
-      ctx!.putImageData(imageData, 0, 0)
-
+      canvas.width = img.width
+      canvas.height = img.height
+      if (ctx == null) return
+      // Convert the image to grayscale
+      ctx.filter =
+        "saturate(700%) grayscale(100%) contrast(400%) brightness(100%)"
+      ctx.drawImage(img, 0, 0)
       // Set the grayscale image source
       const grayscaleSrc = canvas.toDataURL("image/png")
-      setScreenshot(grayscaleSrc)
       runOCR(grayscaleSrc)
     }
   }
@@ -101,7 +99,15 @@ function DocumentScan() {
       )}
 
       {ocrIsRunning && <p>Loading...</p>}
-      {foundText && <p>{foundText}</p>}
+
+      {foundText && <p className="text-sm">{foundText}</p>}
+      <h1>Results</h1>
+      {analysis &&
+        Object.entries(analysis).map(([key, value]) => (
+          <p>
+            {key} : {value}
+          </p>
+        ))}
       <input
         type="file"
         name="myImage"
