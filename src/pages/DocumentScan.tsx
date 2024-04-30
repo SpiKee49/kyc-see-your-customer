@@ -1,132 +1,130 @@
-import { useEffect, useRef, useState } from "react"
-// import { OcrInstance } from "../axios"
+import { ChangeEvent, useState } from "react"
 import { createWorker } from "tesseract.js"
-import Upscaler from "upscaler"
-import deblur from "@upscalerjs/maxim-deblurring"
+import { clasifier } from "../utils/imageProcessing"
+import { useAppSelector } from "../store/store"
+
+// import { toBase64 } from "../utils/conversions"
+// @ts-ignore
 
 // const SCREENSHOT_TIME_INTERVAL_MS = 4000
 
 function DocumentScan() {
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const personalInformation = useAppSelector(
+    state => state.global.personalInformation
+  )
+  const birthNumber = useAppSelector(state => state.global.birthNumber)
   const [ocrIsRunning, setOcrIsRunning] = useState(false)
   const [foundText, setFoundText] = useState("")
 
-  const [screenshot, setScreenshot] = useState<string>()
-  const [deblured, setDeblur] = useState<string>()
-
-  async function getScreenshot() {
-    const upscaler = new Upscaler({ model: deblur })
-    upscaler.warmup({ patchSize: 512, padding: 2 })
-    const canvas = document.createElement("canvas")
-    canvas.width = 1280
-    canvas.height = 720
-    const ctx = canvas.getContext("2d")
-    if (ctx == null || ocrIsRunning || !videoRef.current) return
-    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height)
-    let data = canvas.toDataURL("image/png", 1)
-    setScreenshot(data)
-    const image = new Image()
-    image.src = data
-
-    const result = await upscaler.upscale(image, {
-      output: "base64",
-      patchSize: 512,
-      padding: 2,
-      progress: progress => console.log(progress)
-    })
-    setDeblur(result)
-    // const API_URL = "127.0.0.1/upload"
-
-    // const res = await axios.post(API_URL, { base64Img: data })
-    // console.log(JSON.stringify(res.data))
-
-    // runOCR(data)
-  }
-
-  // function streamCamVideo() {
-  //   const constraints = {
-  //     audio: false,
-  //     video: {
-  //       facingMode: "environment"
-  //     }
-  //   }
-
-  //   navigator.mediaDevices
-  //     .getUserMedia(constraints)
-  //     .then(async mediaStream => {
-  //       const video = videoRef.current
-
-  //       if (video === null) {
-  //         console.log("video null")
-  //         return
-  //       }
-
-  //       video.srcObject = mediaStream
-  //       video.onloadedmetadata = () => video.play()
-  //     })
-  //     .catch(function (err) {
-  //       console.log(err.name + ": " + err.message)
-  //     }) // always check for errors at the end.
-  // }
-
+  const [screenshot, setScreenshot] = useState<string | null>()
+  const [analysis, setAnalysis] = useState<Record<string, boolean>>()
   async function runOCR(screenshotBase64: string) {
     setOcrIsRunning(true)
-    try {
-      const worker = await createWorker("slk")
-      const ret = await worker.recognize(screenshotBase64)
-      console.log(ret.data.text)
-      await worker.terminate()
-    } catch (error) {
-      console.log(error)
-    }
+    const worker = await createWorker("slk")
+    const ret = await worker.recognize(screenshotBase64)
+    await worker.terminate()
 
-    setOcrIsRunning(false)
+    const polishedText = ret.data.text
+      .split(/([a-zéčíťýžľščôá]+)|(\d+[\/]\d+|\d{2}[.]\d{2}[.]\d{4})/gi)
+      .filter(item => item !== undefined && item.length > 1)
+      .join(" ")
+    //TODO: analyze
+    setFoundText(polishedText)
+
+    let analyze: Record<string, boolean> = {}
+
+    try {
+      if (personalInformation == null)
+        throw new Error("personal informations are not set")
+
+      Object.entries(personalInformation).map(([key, value]) => {
+        analyze[key] = polishedText.includes(value)
+      })
+      if (birthNumber === null) return
+
+      const test = `${birthNumber.slice(0, 6)}/${birthNumber.slice(6)}`
+      console.log(test)
+
+      analyze["birthNumber"] = polishedText.includes(test)
+      setAnalysis(analyze)
+      setOcrIsRunning(false)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
-  useEffect(() => {
-    // streamCamVideo()
-    // const screenShotInterval = setInterval(() => {},
-    // SCREENSHOT_TIME_INTERVAL_MS)
+  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files![0]
 
-    return () => {
-      // clearInterval(screenShotInterval)
-      videoRef.current?.pause()
+    const img = new Image()
+    const imgSrc = URL.createObjectURL(file)
+    img.src = imgSrc
+
+    img.onload = () => {
+      const canvas = document.createElement("canvas")
+      const ctx = canvas.getContext("2d")
+      img.width = img.naturalWidth
+      img.height = img.naturalHeight
+      setScreenshot(imgSrc)
+      clasifier.classify(img, (err: any, results: any) => {
+        if (err) {
+          console.log("error")
+        }
+        console.log("results", results)
+        // const data: Record<string, number> = {}
+        // results.map((item: any) => {
+        //   data[item.label] = item.confidence
+        // })
+        // console.log("updated", data)
+      })
+
+      canvas.width = img.width
+      canvas.height = img.height
+      if (ctx == null) return
+      // Convert the image to grayscale
+      ctx.filter =
+        "saturate(800%) grayscale(100%) contrast(400%) brightness(100%)"
+      ctx.drawImage(img, 0, 0)
+      // Set the grayscale image source
+      const grayscaleSrc = canvas.toDataURL("image/png")
+      runOCR(grayscaleSrc)
     }
-  }, [])
+  }
 
   return (
-    <div className="flex items-center flex-col">
-      <h1>Video</h1>
-      <div className={`relative w-full`}>
-        <video className="w-full" autoPlay={true} ref={videoRef}></video>
+    <div className="flex items-center flex-col gap-4">
+      <h1 className="text-center">
+        Nahrajte fotografiu osobného dokladu, na ktorom figuruje meno a vaša
+        fotografia.
+      </h1>
+      <p className="text-sm text-center">
+        Uistite sa, že nahraná fotografia je v dostatočnej kvalite a optimálnych
+        svetelných podmienkach tak aby boli údaje na nej čo najčítateľnejšie.
+      </p>
 
-        <div className="absolute border-2 w-1/2 h-1/2 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 "></div>
-        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-white font-light text-center bg-black bg-opacity-25">
-          {ocrIsRunning
-            ? "Loading..."
-            : "Umiestnite doklad na vyhradené miesto"}
-        </span>
-      </div>
-      <button
-        className="mx-auto bg-sky-600 text-white rounded-sm my-5 p-10"
-        onClick={() => getScreenshot()}
-      >
-        Take screenshot
-      </button>
-      <h1>Found text</h1>
-      <p>{foundText}</p>
       {screenshot && (
-        <>
-          <h1>Screenshot </h1>
-          <img src={screenshot} />
-        </>
+        <div>
+          <img alt="not found" width={"500px"} src={screenshot} />
+          <br />
+          <button onClick={() => setScreenshot(null)}>Remove</button>
+        </div>
       )}
-      {deblured && (
-        <>
-          <h1>deblured </h1>
-          <img src={deblured} />
-        </>
-      )}
+
+      {ocrIsRunning && <p>Loading...</p>}
+
+      {foundText && <p className="text-sm">{foundText}</p>}
+      {analysis &&
+        Object.entries(analysis).map(([key, value]) => (
+          <p key={key}>
+            {key} : {value ? "found" : "missing"}
+          </p>
+        ))}
+      <input
+        type="file"
+        name="myImage"
+        className="w-1/2 h-auto"
+        onChange={handleImageUpload}
+      />
     </div>
   )
 }

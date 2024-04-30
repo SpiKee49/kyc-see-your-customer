@@ -1,77 +1,121 @@
-import { ChangeEvent, useState } from "react";
+import Button from "../components/Button"
+import { SubmitHandler, useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import ErrorLabel from "../components/ErrorLabel"
+import { FormSchema, FormSchemaType } from "../Types"
+import { useAppSelector } from "../store/store"
+import { useDispatch } from "react-redux"
+import { setPersonalInformations } from "../store/slice/globalSlice"
+import { useNavigate } from "react-router-dom"
 
 function InformationForm() {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phoneNumber: "",
-    address: ""
-  });
+  const formData = useAppSelector(state => state.global.personalInformation)
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<FormSchemaType>({ resolver: zodResolver(FormSchema) })
+
+  const onSubmit: SubmitHandler<FormSchemaType> = data => {
+    console.log(data)
+    dispatch(setPersonalInformations(data))
+    navigate("/document-scan")
+  }
 
   return (
-    <form className="flex flex-col gap-5">
+    <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
       <label className="text-sm">
-        First Name:
+        Krstné meno:
         <input
           className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
           type="text"
-          name="firstName"
-          value={formData.firstName}
-          onChange={handleChange}
+          value={formData?.firstName}
+          {...register("firstName")}
           required
         />
+        <ErrorLabel>{errors.firstName && errors.firstName?.message}</ErrorLabel>
       </label>
       <label className="text-sm">
-        Last Name:
+        Priezvisko:
         <input
           className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
           type="text"
-          name="lastName"
-          value={formData.lastName}
-          onChange={handleChange}
+          value={formData?.lastName}
+          {...register("lastName")}
           required
         />
+        <ErrorLabel>{errors.lastName && errors.lastName?.message}</ErrorLabel>
       </label>
       <label className="text-sm">
-        Email:
+        Dátum narodenia:
         <input
           className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
+          type="date"
+          value={formData?.dateOfBirth}
+          {...register("dateOfBirth")}
           required
         />
+        <ErrorLabel>
+          {errors.dateOfBirth && errors.dateOfBirth?.message}
+        </ErrorLabel>
       </label>
       <label className="text-sm">
-        Phone Number:
+        Pohlavie:
+        <select
+          className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
+          value={formData?.gender}
+          {...register("gender")}
+          required
+        >
+          <option value={"male"}>Muž</option>
+          <option value={"female"}>Žena</option>
+        </select>
+        <ErrorLabel>{errors.gender && errors.gender?.message}</ErrorLabel>
+      </label>
+      <label className="text-sm">
+        Ulica a číslo domu:
         <input
           className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
-          type="tel"
-          name="phoneNumber"
-          value={formData.phoneNumber}
-          onChange={handleChange}
+          type="text"
+          value={formData?.streetNumber}
+          {...register("streetNumber")}
           required
         />
+        <ErrorLabel>
+          {errors.streetNumber && errors.streetNumber?.message}
+        </ErrorLabel>
+      </label>
+      <label className="text-sm">
+        Mesto:
+        <input
+          className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
+          type="text"
+          value={formData?.city}
+          {...register("city")}
+          required
+        />
+        <ErrorLabel>{errors.city && errors.city?.message}</ErrorLabel>
+      </label>
+      <label className="text-sm">
+        PSČ:
+        <input
+          className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
+          type="text"
+          value={formData?.ZIP}
+          {...register("ZIP")}
+          required
+        />
+        <ErrorLabel>{errors.ZIP && errors.ZIP?.message}</ErrorLabel>
       </label>
 
-      <button
-        type="submit"
-        className="w-full border-sky-600 border-2 rounded-xl py-3 mt-2 text-sky-600 hover:bg-sky-600 hover:text-white transition-all duration-200 hover:border-sky-600"
-      >
-        Submit
-      </button>
+      <Button handleClick={() => {}} disabled={false}>
+        Odoslať
+      </Button>
     </form>
-  );
+  )
 }
 
-export default InformationForm;
+export default InformationForm
