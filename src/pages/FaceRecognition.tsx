@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react"
-import * as faceapi from "face-api.js"
+import { startFaceDetection } from "../utils/faceUtils"
 
 export default function FaceRecognition() {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -21,82 +21,28 @@ export default function FaceRecognition() {
 
   // LOAD FROM USEEFFECT
   useEffect(() => {
-    startVideo()
-    videoRef && loadModels()
+    startVideo().then(wasSuccess => {
+      if (wasSuccess && videoRef.current && canvasRef.current) {
+        startFaceDetection(videoRef.current, canvasRef.current, "sample-id.jpg")
+      }
+    })
   }, [])
 
   // OPEN YOU FACE WEBCAM
-  const startVideo = () => {
-    navigator.mediaDevices
-      .getUserMedia({ video: true })
-      .then(currentStream => {
-        if (videoRef.current == null)
-          throw Error("Could not find video element reference")
-        videoRef.current.srcObject = currentStream
-      })
-      .catch(err => {
-        console.log(err)
-      })
-  }
-  // LOAD MODELS FROM FACE API
-
-  const loadModels = () => {
-    Promise.all([
-      // THIS FOR FACE DETECT AND LOAD FROM YOU PUBLIC/MODELS DIRECTORY
-      faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
-      faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
-      faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
-      faceapi.nets.faceExpressionNet.loadFromUri("/models"),
-      faceapi.nets.ssdMobilenetv1.loadFromUri("/models")
-    ]).then(() => {
-      faceMyDetect()
-    })
-  }
-
-  const faceMyDetect = () => {
-    const video = videoRef.current
-    const canvas = canvasRef.current
-    setInterval(async () => {
-      if (video == null || canvas == null) return
-      const img = new Image()
-      img.src = "sample-id.jpg"
-
-      const detections = await faceapi
-        .detectAllFaces(video)
-        .withFaceLandmarks()
-        .withFaceExpressions()
-        .withFaceDescriptors()
-
-      console.log(detections)
-      // DRAW YOU FACE IN WEBCAM @ts-ingore
-      canvas.innerHTML = String(faceapi.createCanvasFromMedia(video))
-      faceapi.matchDimensions(canvas, {
-        width: video.getBoundingClientRect().width,
-        height: video.getBoundingClientRect().height
+  const startVideo = async () => {
+    try {
+      const currentStream = await navigator.mediaDevices.getUserMedia({
+        video: true
       })
 
-      const resized = faceapi.resizeResults(detections, {
-        width: video.getBoundingClientRect().width,
-        height: video.getBoundingClientRect().height
-      })
-
-      faceapi.draw.drawDetections(canvas, resized)
-      faceapi.draw.drawFaceExpressions(canvas, resized)
-
-      const fullFaceDescription = await faceapi.allFaces(img)
-
-      if (!fullFaceDescription) {
-        console.log(`no faces detected`)
-        return
-      }
-
-      const distance = faceapi.euclideanDistance(
-        detections[0].descriptor,
-        fullFaceDescription[0].descriptor
-      )
-
-      console.log(`Face distance ${distance}`)
-    }, 1000)
+      if (videoRef.current == null)
+        throw Error("Could not find video element reference")
+      videoRef.current.srcObject = currentStream
+      return true
+    } catch (err) {
+      console.log(err)
+      return false
+    }
   }
 
   return (
