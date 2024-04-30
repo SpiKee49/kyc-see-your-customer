@@ -1,6 +1,6 @@
 import { ChangeEvent, useState } from "react"
 import { createWorker } from "tesseract.js"
-import { clasifier } from "../utils/image-processing"
+import { clasifier } from "../utils/imageProcessing"
 import { useAppSelector } from "../store/store"
 
 // import { toBase64 } from "../utils/conversions"
@@ -12,6 +12,7 @@ function DocumentScan() {
   const personalInformation = useAppSelector(
     state => state.global.personalInformation
   )
+  const birthNumber = useAppSelector(state => state.global.birthNumber)
   const [ocrIsRunning, setOcrIsRunning] = useState(false)
   const [foundText, setFoundText] = useState("")
 
@@ -31,14 +32,25 @@ function DocumentScan() {
     setFoundText(polishedText)
 
     let analyze: Record<string, boolean> = {}
-    if (personalInformation == null) return
 
-    Object.entries(personalInformation).map(([key, value]) => {
-      analyze[key] = polishedText.includes(value)
-    })
-    console.log(analysis)
-    setAnalysis(analyze)
-    setOcrIsRunning(false)
+    try {
+      if (personalInformation == null)
+        throw new Error("personal informations are not set")
+
+      Object.entries(personalInformation).map(([key, value]) => {
+        analyze[key] = polishedText.includes(value)
+      })
+      if (birthNumber === null) return
+
+      const test = `${birthNumber.slice(0, 6)}/${birthNumber.slice(6)}`
+      console.log(test)
+
+      analyze["birthNumber"] = polishedText.includes(test)
+      setAnalysis(analyze)
+      setOcrIsRunning(false)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
@@ -71,7 +83,7 @@ function DocumentScan() {
       if (ctx == null) return
       // Convert the image to grayscale
       ctx.filter =
-        "saturate(700%) grayscale(100%) contrast(400%) brightness(100%)"
+        "saturate(800%) grayscale(100%) contrast(400%) brightness(100%)"
       ctx.drawImage(img, 0, 0)
       // Set the grayscale image source
       const grayscaleSrc = canvas.toDataURL("image/png")
@@ -101,11 +113,10 @@ function DocumentScan() {
       {ocrIsRunning && <p>Loading...</p>}
 
       {foundText && <p className="text-sm">{foundText}</p>}
-      <h1>Results</h1>
       {analysis &&
         Object.entries(analysis).map(([key, value]) => (
-          <p>
-            {key} : {value}
+          <p key={key}>
+            {key} : {value ? "found" : "missing"}
           </p>
         ))}
       <input

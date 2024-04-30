@@ -15,7 +15,7 @@ function Landing() {
   const navigate = useNavigate()
   function handleClick() {
     if (inputRef.current) {
-      dispatch(setBirthNumber(+inputRef.current.value))
+      dispatch(setBirthNumber(inputRef.current.value))
       navigate("/personal-info")
     }
   }
@@ -33,7 +33,7 @@ function Landing() {
         <input
           ref={inputRef}
           className="p-2 rounded-md outline-sky-600 border-2 border-sky-600"
-          type="number"
+          type="text"
           name="your-id"
           placeholder="0000000000"
           onChange={e => handleInputChange(e.target.value)}
