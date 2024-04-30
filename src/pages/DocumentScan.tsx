@@ -12,6 +12,7 @@ function DocumentScan() {
   const personalInformation = useAppSelector(
     state => state.global.personalInformation
   )
+  const birthNumber = useAppSelector(state => state.global.birthNumber)
   const [ocrIsRunning, setOcrIsRunning] = useState(false)
   const [foundText, setFoundText] = useState("")
 
@@ -31,13 +32,25 @@ function DocumentScan() {
     setFoundText(polishedText)
 
     let analyze: Record<string, boolean> = {}
-    if (personalInformation == null) return
 
-    Object.entries(personalInformation).map(([key, value]) => {
-      analyze[key] = polishedText.includes(value)
-    })
-    console.log(analysis)
-    setOcrIsRunning(false)
+    try {
+      if (personalInformation == null)
+        throw new Error("personal informations are not set")
+
+      Object.entries(personalInformation).map(([key, value]) => {
+        analyze[key] = polishedText.includes(value)
+      })
+      if (birthNumber === null) return
+
+      const test = `${birthNumber.slice(0, 6)}/${birthNumber.slice(6)}`
+      console.log(test)
+
+      analyze["birthNumber"] = polishedText.includes(test)
+      setAnalysis(analyze)
+      setOcrIsRunning(false)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
@@ -100,12 +113,12 @@ function DocumentScan() {
       {ocrIsRunning && <p>Loading...</p>}
 
       {foundText && <p className="text-sm">{foundText}</p>}
-      {/* {analysis &&
+      {analysis &&
         Object.entries(analysis).map(([key, value]) => (
-          <p>
-            {key} : {value}
+          <p key={key}>
+            {key} : {value ? "found" : "missing"}
           </p>
-        ))} */}
+        ))}
       <input
         type="file"
         name="myImage"

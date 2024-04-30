@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 import { FormSchemaType } from "../../Types"
 
 interface GlobalState {
-  birthNumber: number | null
+  birthNumber: string | null
   personalInformation: FormSchemaType | null
   documentInformation: {
     imageUrl: string
@@ -20,11 +20,14 @@ export const globalSlice = createSlice({
   name: "global",
   initialState,
   reducers: {
-    setBirthNumber: (state, action: PayloadAction<number>) => {
+    setBirthNumber: (state, action: PayloadAction<string>) => {
       state.birthNumber = action.payload
     },
     setPersonalInformations: (state, action: PayloadAction<FormSchemaType>) => {
-      state.personalInformation = action.payload
+      state.personalInformation = {
+        ...action.payload,
+        dateOfBirth: action.payload.dateOfBirth.split("-").reverse().join(".")
+      }
     },
     updateImageUrl: (state, action: PayloadAction<string>) => {
       state.documentInformation = {
