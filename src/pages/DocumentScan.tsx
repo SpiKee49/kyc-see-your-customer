@@ -1,6 +1,6 @@
 import { ChangeEvent, useState } from "react"
 import { createWorker } from "tesseract.js"
-import { clasifier } from "../utils/image-processing"
+import { clasifier } from "../utils/imageProcessing"
 import { useAppSelector } from "../store/store"
 
 // import { toBase64 } from "../utils/conversions"
@@ -37,7 +37,6 @@ function DocumentScan() {
       analyze[key] = polishedText.includes(value)
     })
     console.log(analysis)
-    setAnalysis(analyze)
     setOcrIsRunning(false)
   }
 
@@ -71,7 +70,7 @@ function DocumentScan() {
       if (ctx == null) return
       // Convert the image to grayscale
       ctx.filter =
-        "saturate(700%) grayscale(100%) contrast(400%) brightness(100%)"
+        "saturate(800%) grayscale(100%) contrast(400%) brightness(100%)"
       ctx.drawImage(img, 0, 0)
       // Set the grayscale image source
       const grayscaleSrc = canvas.toDataURL("image/png")
@@ -101,13 +100,12 @@ function DocumentScan() {
       {ocrIsRunning && <p>Loading...</p>}
 
       {foundText && <p className="text-sm">{foundText}</p>}
-      <h1>Results</h1>
-      {analysis &&
+      {/* {analysis &&
         Object.entries(analysis).map(([key, value]) => (
           <p>
             {key} : {value}
           </p>
-        ))}
+        ))} */}
       <input
         type="file"
         name="myImage"
