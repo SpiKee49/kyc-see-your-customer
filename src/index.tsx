@@ -1,12 +1,7 @@
 import React, { useEffect } from "react"
 import ReactDOM from "react-dom/client"
 import Landing from "./pages/Landing.tsx"
-import {
-  createBrowserRouter,
-  createRoutesFromElements,
-  Route,
-  RouterProvider
-} from "react-router-dom"
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import "./index.css"
 import InformationForm from "./pages/InformationForm.tsx"
 import { store } from "./store/store.ts"
@@ -15,35 +10,46 @@ import DocumentScan from "./pages/DocumentScan.tsx"
 import FaceRecognition from "./pages/FaceRecognition.tsx"
 import { loadModels } from "./utils/faceUtils.ts"
 
-const router = createBrowserRouter(
-  createRoutesFromElements(
-    <>
-      <Route path="/" element={<Landing />} />
-      <Route path="/personal-info" element={<InformationForm />} />
-      <Route path="/document-scan" element={<DocumentScan />} />
-      <Route path="/face-recognition" element={<FaceRecognition />} />
-    </>
-  )
+export const router = createBrowserRouter(
+    [
+        {
+            path: "/",
+            element: <Landing />
+        },
+        {
+            path: "/personal-info",
+            element: <InformationForm />
+        },
+        {
+            path: "/document-scan",
+            element: <DocumentScan />
+        },
+        {
+            path: "/face-recognition",
+            element: <FaceRecognition />
+        }
+    ],
+    { basename: "/" }
 )
 
 function App() {
-  useEffect(() => {
-    loadModels()
-  }, [])
+    useEffect(() => {
+        loadModels()
+    }, [])
 
-  return (
-    <div className="w-4/5 mx-auto h-[100vh] flex-1 flex flex-col gap-5 justify-center items-center">
-      <div className="bg-white  p-10 rounded-lg shadow-2xl w-full max-w-[700px]">
-        <RouterProvider router={router} />
-      </div>
-    </div>
-  )
+    return (
+        <div className="w-4/5 mx-auto h-[100vh] flex-1 flex flex-col gap-5 justify-center items-center">
+            <div className="bg-white  p-10 rounded-lg shadow-2xl w-full max-w-[700px]">
+                <RouterProvider router={router} />
+            </div>
+        </div>
+    )
 }
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </React.StrictMode>
+    <React.StrictMode>
+        <Provider store={store}>
+            <App />
+        </Provider>
+    </React.StrictMode>
 )

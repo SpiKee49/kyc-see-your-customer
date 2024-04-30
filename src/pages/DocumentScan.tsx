@@ -1,132 +1,140 @@
-import { ChangeEvent, useState } from "react"
+import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { createWorker } from "tesseract.js"
 import { clasifier } from "../utils/imageProcessing"
-import { useAppSelector } from "../store/store"
-
-// import { toBase64 } from "../utils/conversions"
-// @ts-ignore
-
-// const SCREENSHOT_TIME_INTERVAL_MS = 4000
+import { useAppDispatch, useAppSelector } from "../store/store"
+import { updateOcrResults } from "../store/slice/globalSlice"
+import { useNavigate } from "react-router-dom"
+import Button from "../components/Button"
 
 function DocumentScan() {
-  const personalInformation = useAppSelector(
-    state => state.global.personalInformation
-  )
-  const birthNumber = useAppSelector(state => state.global.birthNumber)
-  const [ocrIsRunning, setOcrIsRunning] = useState(false)
-  const [foundText, setFoundText] = useState("")
+    const dispatch = useAppDispatch()
+    const personalInformation = useAppSelector(
+        state => state.global.personalInformation
+    )
+    const birthNumber = useAppSelector(state => state.global.birthNumber)
+    const [ocrIsRunning, setOcrIsRunning] = useState(false)
+    const [screenshot, setScreenshot] = useState<string | null>()
+    const hiddenFileUploadRef = useRef<HTMLInputElement>(null)
+    const navigate = useNavigate()
 
-  const [screenshot, setScreenshot] = useState<string | null>()
-  const [analysis, setAnalysis] = useState<Record<string, boolean>>()
-  async function runOCR(screenshotBase64: string) {
-    setOcrIsRunning(true)
-    const worker = await createWorker("slk")
-    const ret = await worker.recognize(screenshotBase64)
-    await worker.terminate()
-
-    const polishedText = ret.data.text
-      .split(/([a-zéčíťýžľščôá]+)|(\d+[\/]\d+|\d{2}[.]\d{2}[.]\d{4})/gi)
-      .filter(item => item !== undefined && item.length > 1)
-      .join(" ")
-    //TODO: analyze
-    setFoundText(polishedText)
-
-    let analyze: Record<string, boolean> = {}
-
-    try {
-      if (personalInformation == null)
-        throw new Error("personal informations are not set")
-
-      Object.entries(personalInformation).map(([key, value]) => {
-        analyze[key] = polishedText.includes(value)
-      })
-      if (birthNumber === null) return
-
-      const test = `${birthNumber.slice(0, 6)}/${birthNumber.slice(6)}`
-      console.log(test)
-
-      analyze["birthNumber"] = polishedText.includes(test)
-      setAnalysis(analyze)
-      setOcrIsRunning(false)
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files![0]
-
-    const img = new Image()
-    const imgSrc = URL.createObjectURL(file)
-    img.src = imgSrc
-
-    img.onload = () => {
-      const canvas = document.createElement("canvas")
-      const ctx = canvas.getContext("2d")
-      img.width = img.naturalWidth
-      img.height = img.naturalHeight
-      setScreenshot(imgSrc)
-      clasifier.classify(img, (err: any, results: any) => {
-        if (err) {
-          console.log("error")
+    useEffect(() => {
+        if (personalInformation == null) {
+            navigate("/")
         }
-        console.log("results", results)
-        // const data: Record<string, number> = {}
-        // results.map((item: any) => {
-        //   data[item.label] = item.confidence
-        // })
-        // console.log("updated", data)
-      })
+    }, [])
 
-      canvas.width = img.width
-      canvas.height = img.height
-      if (ctx == null) return
-      // Convert the image to grayscale
-      ctx.filter =
-        "saturate(800%) grayscale(100%) contrast(400%) brightness(100%)"
-      ctx.drawImage(img, 0, 0)
-      // Set the grayscale image source
-      const grayscaleSrc = canvas.toDataURL("image/png")
-      runOCR(grayscaleSrc)
+    async function runOCR(screenshotBase64: string) {
+        setOcrIsRunning(true)
+        const worker = await createWorker("slk")
+        const ret = await worker.recognize(screenshotBase64)
+        await worker.terminate()
+
+        const polishedText = ret.data.text
+            .split(/([a-zéčíťýžľščôá]+)|(\d+[\/]\d+|\d{2}[.]\d{2}[.]\d{4})/gi)
+            .filter(item => item !== undefined && item.length > 1)
+            .join(" ")
+
+        let analyze: Record<string, boolean> = {}
+
+        try {
+            if (personalInformation == null)
+                throw new Error("personal informations are not set")
+
+            Object.entries(personalInformation).map(([key, value]) => {
+                analyze[key] = polishedText.includes(value)
+            })
+            if (birthNumber === null) return
+
+            const birthNumberWithSlash = `${birthNumber.slice(
+                0,
+                6
+            )}/${birthNumber.slice(6)}`
+            analyze["birthNumber"] = polishedText.includes(birthNumberWithSlash)
+            dispatch(updateOcrResults(analyze))
+            setOcrIsRunning(false)
+        } catch (e) {
+            console.log(e)
+        }
     }
-  }
 
-  return (
-    <div className="flex items-center flex-col gap-4">
-      <h1 className="text-center">
-        Nahrajte fotografiu osobného dokladu, na ktorom figuruje meno a vaša
-        fotografia.
-      </h1>
-      <p className="text-sm text-center">
-        Uistite sa, že nahraná fotografia je v dostatočnej kvalite a optimálnych
-        svetelných podmienkach tak aby boli údaje na nej čo najčítateľnejšie.
-      </p>
+    function handleImageUpload(event: ChangeEvent<HTMLInputElement>) {
+        const file = event.target.files![0]
 
-      {screenshot && (
-        <div>
-          <img alt="not found" width={"500px"} src={screenshot} />
-          <br />
-          <button onClick={() => setScreenshot(null)}>Remove</button>
+        const img = new Image()
+        const imgSrc = URL.createObjectURL(file)
+        img.src = imgSrc
+
+        img.onload = () => {
+            const canvas = document.createElement("canvas")
+            const ctx = canvas.getContext("2d")
+            img.width = img.naturalWidth
+            img.height = img.naturalHeight
+            setScreenshot(imgSrc)
+            clasifier.classify(img, (err: any, results: any) => {
+                if (err) {
+                    console.log("error")
+                }
+                console.log("results", results)
+                const data: Record<string, number> = {}
+                results.map((item: any) => {
+                    data[item.label] = item.confidence
+                })
+                console.log("updated", data)
+            })
+
+            canvas.width = img.width
+            canvas.height = img.height
+            if (ctx == null) return
+            // Convert the image to grayscale
+            ctx.filter =
+                "saturate(800%) grayscale(100%) contrast(400%) brightness(100%)"
+            ctx.drawImage(img, 0, 0)
+            // Set the grayscale image source
+            const grayscaleSrc = canvas.toDataURL("image/png")
+            runOCR(grayscaleSrc)
+        }
+        navigate("/face-recognition")
+    }
+
+    return (
+        <div className="flex items-center flex-col gap-4">
+            <h1 className="text-center">
+                Nahrajte fotografiu osobného dokladu, na ktorom figuruje meno a
+                vaša fotografia.
+            </h1>
+            <p className="text-sm text-center">
+                Uistite sa, že nahraná fotografia je v dostatočnej kvalite a
+                optimálnych svetelných podmienkach tak aby boli údaje na nej čo
+                najčítateľnejšie.
+            </p>
+
+            {screenshot && (
+                <img
+                    alt="not found"
+                    width={"500px"}
+                    src={screenshot}
+                />
+            )}
+
+            {ocrIsRunning && <p>Loading...</p>}
+
+            <input
+                ref={hiddenFileUploadRef}
+                type="file"
+                className="hidden"
+                onChange={handleImageUpload}
+            />
+            <Button
+                handleClick={() => {
+                    if (hiddenFileUploadRef.current) {
+                        hiddenFileUploadRef.current.click()
+                    }
+                }}
+            >
+                Vložte súbor
+            </Button>
         </div>
-      )}
-
-      {ocrIsRunning && <p>Loading...</p>}
-
-      {foundText && <p className="text-sm">{foundText}</p>}
-      {analysis &&
-        Object.entries(analysis).map(([key, value]) => (
-          <p key={key}>
-            {key} : {value ? "found" : "missing"}
-          </p>
-        ))}
-      <input
-        type="file"
-        name="myImage"
-        className="w-1/2 h-auto"
-        onChange={handleImageUpload}
-      />
-    </div>
-  )
+    )
 }
 
 export default DocumentScan
