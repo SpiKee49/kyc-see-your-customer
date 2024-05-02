@@ -9,6 +9,7 @@ import { Provider } from "react-redux"
 import DocumentScan from "./pages/DocumentScan.tsx"
 import FaceRecognition from "./pages/FaceRecognition.tsx"
 import { loadModels } from "./utils/faceUtils.ts"
+import FinalPage from "./pages/FinalPage.tsx"
 
 export const router = createBrowserRouter(
     [
@@ -27,6 +28,10 @@ export const router = createBrowserRouter(
         {
             path: "/face-recognition",
             element: <FaceRecognition />
+        },
+        {
+            path: "/final",
+            element: <FinalPage />
         }
     ],
     { basename: "/" }

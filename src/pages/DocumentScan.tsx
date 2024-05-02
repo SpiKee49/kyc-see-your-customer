@@ -64,7 +64,7 @@ function DocumentScan() {
         const imgSrc = URL.createObjectURL(file)
         img.src = imgSrc
 
-        img.onload = () => {
+        img.onload = async () => {
             const canvas = document.createElement("canvas")
             const ctx = canvas.getContext("2d")
             img.width = img.naturalWidth
@@ -91,9 +91,9 @@ function DocumentScan() {
             ctx.drawImage(img, 0, 0)
             // Set the grayscale image source
             const grayscaleSrc = canvas.toDataURL("image/png")
-            runOCR(grayscaleSrc)
+            await runOCR(grayscaleSrc)
+            navigate("/face-recognition")
         }
-        navigate("/face-recognition")
     }
 
     return (

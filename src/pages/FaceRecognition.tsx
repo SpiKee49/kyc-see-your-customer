@@ -1,9 +1,10 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { startFaceDetection } from "../utils/faceUtils"
 
 export default function FaceRecognition() {
     const videoRef = useRef<HTMLVideoElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
+    const [stream, setStream] = useState<MediaStream>()
 
     // async function getScreenshot() {
     //   const upscaler = new Upscaler({ model: deblur })
@@ -30,6 +31,13 @@ export default function FaceRecognition() {
                 )
             }
         })
+
+        return () => {
+            if (stream)
+                stream.getTracks().forEach(function (track) {
+                    track.stop()
+                })
+        }
     }, [])
 
     // OPEN YOU FACE WEBCAM
@@ -38,6 +46,8 @@ export default function FaceRecognition() {
             const currentStream = await navigator.mediaDevices.getUserMedia({
                 video: true
             })
+
+            setStream(currentStream)
 
             if (videoRef.current == null)
                 throw Error("Could not find video element reference")
