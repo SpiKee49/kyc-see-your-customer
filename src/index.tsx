@@ -43,7 +43,7 @@ function App() {
     }, [])
 
     return (
-        <div className="w-4/5 mx-auto h-[100vh] flex-1 flex flex-col gap-5 justify-center items-center">
+        <div className="w-4/5 mx-auto h-[100vh] flex-1 flex flex-col gap-5 justify-start p-7 items-center">
             <div className="bg-white  p-10 rounded-lg shadow-2xl w-full max-w-[700px]">
                 <RouterProvider router={router} />
             </div>
