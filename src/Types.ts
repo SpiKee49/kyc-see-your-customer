@@ -3,6 +3,7 @@ import { z, literal } from "zod"
 export const FormSchema = z.object({
     firstName: z.string(),
     lastName: z.string(),
+    email: z.string().email(),
     gender: z.literal("male").or(literal("female")),
     dateOfBirth: z.string().date(),
     streetNumber: z.string(),

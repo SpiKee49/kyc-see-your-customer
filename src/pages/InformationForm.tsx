@@ -34,7 +34,10 @@ function InformationForm() {
     }
 
     return (
-        <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
+        <form
+            className="flex flex-col gap-5"
+            onSubmit={handleSubmit(onSubmit)}
+        >
             <label className="text-sm">
                 Krstné meno:
                 <input
@@ -55,6 +58,19 @@ function InformationForm() {
                     type="text"
                     value={formData?.lastName}
                     {...register("lastName")}
+                    required
+                />
+                <ErrorLabel>
+                    {errors.lastName && errors.lastName?.message}
+                </ErrorLabel>
+            </label>
+            <label className="text-sm">
+                E-mail:
+                <input
+                    className="w-full text-sm border-2 pl-4 h-10 rounded-md border-sky-600"
+                    type="email"
+                    value={formData?.lastName}
+                    {...register("email")}
                     required
                 />
                 <ErrorLabel>
@@ -125,7 +141,10 @@ function InformationForm() {
                 <ErrorLabel>{errors.ZIP && errors.ZIP?.message}</ErrorLabel>
             </label>
 
-            <Button handleClick={() => {}} disabled={false}>
+            <Button
+                handleClick={() => {}}
+                disabled={false}
+            >
                 Odoslať
             </Button>
         </form>

@@ -63,9 +63,18 @@ export const startFaceDetection = (
         )
 
         if (distance <= 0.5 || numberOfRetries === MAX_RETRIES) {
-            if (distance <= 0.5) {
-                store.dispatch(updateFaceRecognitionResult(true))
-            }
+            const cnv = document.createElement("canvas")
+            const ctx = cnv.getContext("2d")
+            ctx?.drawImage(video, 0, 0)
+            const screenShot = cnv.toDataURL("image/png", 0.7)
+
+            store.dispatch(
+                updateFaceRecognitionResult({
+                    faceMatched: distance <= 0.5,
+                    imageData: screenShot
+                })
+            )
+
             router.navigate("/final")
             clearInterval(interval)
         }

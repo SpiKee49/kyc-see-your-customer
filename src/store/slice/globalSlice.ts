@@ -11,7 +11,10 @@ interface GlobalState {
         imageData?: Blob
     }
     ocrResults: OcrResults | null
-    faceRecognitionResult: boolean
+    faceRecognitionResult: {
+        faceMatched: boolean
+        imageData?: string
+    }
 }
 
 const initialState: GlobalState = {
@@ -19,7 +22,9 @@ const initialState: GlobalState = {
     personalInformation: null,
     documentInformation: {},
     ocrResults: null,
-    faceRecognitionResult: false
+    faceRecognitionResult: {
+        faceMatched: false
+    }
 }
 
 export const globalSlice = createSlice({
@@ -64,9 +69,9 @@ export const globalSlice = createSlice({
         },
         updateFaceRecognitionResult: (
             state,
-            action: PayloadAction<boolean>
+            action: PayloadAction<{ faceMatched: boolean; imageData: string }>
         ) => {
-            state.faceRecognitionResult = action.payload
+            state.faceRecognitionResult = { ...action.payload }
         }
     }
 })
