@@ -2,7 +2,7 @@ import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { createWorker } from "tesseract.js"
 import { clasifier } from "../utils/imageProcessing"
 import { useAppDispatch, useAppSelector } from "../store/store"
-import { updateOcrResults } from "../store/slice/globalSlice"
+import { updateImageUrl, updateOcrResults } from "../store/slice/globalSlice"
 import { useNavigate } from "react-router-dom"
 import Button from "../components/Button"
 
@@ -63,7 +63,7 @@ function DocumentScan() {
         const img = new Image()
         const imgSrc = URL.createObjectURL(file)
         img.src = imgSrc
-
+        dispatch(updateImageUrl({ imageUrl: imgSrc, imageData: file }))
         img.onload = async () => {
             const canvas = document.createElement("canvas")
             const ctx = canvas.getContext("2d")

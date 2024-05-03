@@ -1,5 +1,9 @@
 import * as faceapi from "face-api.js"
 import { router } from "../index"
+import { store } from "../store/store"
+import { updateFaceRecognitionResult } from "../store/slice/globalSlice"
+
+const MAX_RETRIES = 30
 
 export const loadModels = () => {
     return Promise.all([
@@ -17,6 +21,8 @@ export const startFaceDetection = (
     canvas: HTMLCanvasElement,
     idImageSrc: string
 ) => {
+    let numberOfRetries = 0
+
     var interval = setInterval(async () => {
         if (video == null || canvas == null) return
         const img = new Image()
@@ -56,9 +62,14 @@ export const startFaceDetection = (
             fullFaceDescription[0].descriptor
         )
 
-        if (distance <= 0.5) {
+        if (distance <= 0.5 || numberOfRetries === MAX_RETRIES) {
+            if (distance <= 0.5) {
+                store.dispatch(updateFaceRecognitionResult(true))
+            }
             router.navigate("/final")
             clearInterval(interval)
         }
+
+        numberOfRetries += 1
     }, 1000)
 }

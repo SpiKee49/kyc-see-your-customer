@@ -1,46 +1,46 @@
 import { useEffect, useRef, useState } from "react"
 import { startFaceDetection } from "../utils/faceUtils"
+import { useAppSelector } from "../store/store"
+import { useNavigate } from "react-router-dom"
 
 export default function FaceRecognition() {
     const videoRef = useRef<HTMLVideoElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const [stream, setStream] = useState<MediaStream>()
+    const imageUrl = useAppSelector(
+        state => state.global.documentInformation.imageUrl
+    )
+    const navigate = useNavigate()
 
-    // async function getScreenshot() {
-    //   const upscaler = new Upscaler({ model: deblur })
-    //   upscaler.warmup({ patchSize: 512, padding: 2 })
-    //   const canvas = document.createElement("canvas")
-    //   canvas.width = 1280
-    //   canvas.height = 720
-    //   const ctx = canvas.getContext("2d")
-    //   if (ctx == null || !video) return
-    //   ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-
-    //   //screenshot from the video
-    //   const data = canvas.toDataURL("image/png", 1)
-    // }
-
-    // LOAD FROM USEEFFECT
     useEffect(() => {
+        if (imageUrl == null) {
+            navigate("/")
+        }
         startVideo().then(wasSuccess => {
-            if (wasSuccess && videoRef.current && canvasRef.current) {
+            if (
+                wasSuccess &&
+                videoRef.current &&
+                canvasRef.current &&
+                imageUrl
+            ) {
                 startFaceDetection(
                     videoRef.current,
                     canvasRef.current,
-                    "sample-id.jpg"
+                    imageUrl
                 )
             }
         })
 
         return () => {
             if (stream)
-                stream.getTracks().forEach(function (track) {
-                    track.stop()
+                stream.getTracks().forEach(track => {
+                    if (track.readyState == "live" && track.kind === "video") {
+                        track.stop()
+                    }
                 })
         }
     }, [])
 
-    // OPEN YOU FACE WEBCAM
     const startVideo = async () => {
         try {
             const currentStream = await navigator.mediaDevices.getUserMedia({

@@ -8,15 +8,18 @@ interface GlobalState {
     documentInformation: {
         imageUrl?: string
         type?: "id-card" | "driver-license"
+        imageData?: Blob
     }
     ocrResults: OcrResults | null
+    faceRecognitionResult: boolean
 }
 
 const initialState: GlobalState = {
     birthNumber: null,
     personalInformation: null,
     documentInformation: {},
-    ocrResults: null
+    ocrResults: null,
+    faceRecognitionResult: false
 }
 
 export const globalSlice = createSlice({
@@ -38,8 +41,14 @@ export const globalSlice = createSlice({
                     .join(".")
             }
         },
-        updateImageUrl: (state, action: PayloadAction<string>) => {
-            state.documentInformation.imageUrl = action.payload
+        updateImageUrl: (
+            state,
+            action: PayloadAction<{ imageUrl: string; imageData: Blob }>
+        ) => {
+            state.documentInformation = {
+                ...state.documentInformation,
+                ...action.payload
+            }
         },
         updateDocumentType: (
             state,
@@ -52,6 +61,12 @@ export const globalSlice = createSlice({
             action: PayloadAction<Record<string, boolean>>
         ) => {
             state.ocrResults = action.payload
+        },
+        updateFaceRecognitionResult: (
+            state,
+            action: PayloadAction<boolean>
+        ) => {
+            state.faceRecognitionResult = action.payload
         }
     }
 })
@@ -62,6 +77,7 @@ export const {
     setPersonalInformations,
     updateImageUrl,
     updateOcrResults,
+    updateFaceRecognitionResult,
     updateDocumentType
 } = globalSlice.actions
 
