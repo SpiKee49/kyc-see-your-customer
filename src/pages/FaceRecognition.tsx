@@ -2,14 +2,16 @@ import { useEffect, useRef, useState } from "react"
 import { startFaceDetection } from "../utils/faceUtils"
 import { useAppSelector } from "../store/store"
 import { useNavigate } from "react-router-dom"
+import { set } from "zod"
 
 export default function FaceRecognition() {
     const videoRef = useRef<HTMLVideoElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const [stream, setStream] = useState<MediaStream>()
     const imageUrl = useAppSelector(
-        state => state.global.documentInformation.imageUrl
+        state => state.global.documentInformation.imageData
     )
+    const [videoError, setVideoError] = useState(false)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -17,6 +19,8 @@ export default function FaceRecognition() {
             navigate("/")
         }
         startVideo().then(wasSuccess => {
+            setVideoError(!wasSuccess)
+
             if (
                 wasSuccess &&
                 videoRef.current &&
@@ -43,6 +47,11 @@ export default function FaceRecognition() {
 
     const startVideo = async () => {
         try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: true
+            })
+            stream.getTracks().forEach(track => track.stop())
+
             const currentStream = await navigator.mediaDevices.getUserMedia({
                 video: true
             })
@@ -54,9 +63,25 @@ export default function FaceRecognition() {
             videoRef.current.srcObject = currentStream
             return true
         } catch (err) {
-            console.log(err)
+            console.error(err)
             return false
         }
+    }
+
+    if (videoError) {
+        return (
+            <div className="flex items-center flex-col">
+                <h1>Nastala chyba pri spúšťaní webkamery</h1>
+                <p className="text-sm text-center my-5  ">
+                    <b className="text-red-700">
+                        Uistite sa, že se prehliadaču umožnili prístup ku
+                        kamere, alebo či iné aplikácie práve nepoužívajú kameru.
+                        Ak toto nie je váš prípad, tak skúste to znova opäť
+                        neskôr.
+                    </b>
+                </p>
+            </div>
+        )
     }
 
     return (
@@ -66,7 +91,7 @@ export default function FaceRecognition() {
                 Uistite sa, že vidíte svoj obraz na obrazovke a taktiež, či je
                 vaša tvár rozpoznávana pomocou modrého obdlžníka.
                 <br />
-                <b className="text-white">
+                <b className="text-red-700">
                     Prvé rozpoznávanie tváre môže trvať niekoľko sekúnd, buďte
                     preto trpezliví.
                 </b>

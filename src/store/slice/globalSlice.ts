@@ -1,21 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
-import { FormSchemaType, OcrResults } from "../../Types"
-
-interface GlobalState {
-    birthNumber: string | null
-    personalInformation: FormSchemaType | null
-    documentInformation: {
-        imageUrl?: string
-        type?: "id-card" | "driver-license"
-        imageData?: Blob
-    }
-    ocrResults: OcrResults | null
-    faceRecognitionResult: {
-        faceMatched: boolean
-        imageData?: string
-    }
-}
+import { FormSchemaType, GlobalState } from "../../assets/types"
 
 const initialState: GlobalState = {
     birthNumber: null,
@@ -48,7 +33,7 @@ export const globalSlice = createSlice({
         },
         updateImageUrl: (
             state,
-            action: PayloadAction<{ imageUrl: string; imageData: Blob }>
+            action: PayloadAction<{ imageData: string }>
         ) => {
             state.documentInformation = {
                 ...state.documentInformation,

@@ -39,7 +39,9 @@ export default function FinalPage() {
                 <small>
                     <span>Pohlavie:</span>{" "}
                     <span className="font-bold">
-                        {global.personalInformation?.gender}
+                        {global.personalInformation?.gender === "male"
+                            ? "Muž"
+                            : "Žena"}
                     </span>
                 </small>
                 <small>
@@ -65,7 +67,7 @@ export default function FinalPage() {
                 <h1 className="text-base">Náhľad OP</h1>
                 <img
                     className="rounded-xl"
-                    src={global.documentInformation.imageUrl}
+                    src={global.documentInformation.imageData}
                 />
                 <h1 className="text-base">Náhľad snímky z webkamery</h1>
                 <img

@@ -1,10 +1,11 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { createWorker } from "tesseract.js"
-import { clasifier } from "../utils/imageProcessing"
+import { clasifier } from "@utils/imageProcessing"
 import { useAppDispatch, useAppSelector } from "../store/store"
 import { updateImageUrl, updateOcrResults } from "../store/slice/globalSlice"
 import { useNavigate } from "react-router-dom"
 import Button from "../components/Button"
+import { toBase64 } from "@utils/conversions"
 
 function DocumentScan() {
     const dispatch = useAppDispatch()
@@ -57,13 +58,19 @@ function DocumentScan() {
         }
     }
 
-    function handleImageUpload(event: ChangeEvent<HTMLInputElement>) {
+    async function handleImageUpload(event: ChangeEvent<HTMLInputElement>) {
         const file = event.target.files![0]
 
         const img = new Image()
-        const imgSrc = URL.createObjectURL(file)
+        const imgSrc = await toBase64(file)
+
+        if (imgSrc == null)
+            throw new Error(
+                "There was an error converting image to base64 format"
+            )
+
         img.src = imgSrc
-        dispatch(updateImageUrl({ imageUrl: imgSrc, imageData: file }))
+        dispatch(updateImageUrl({ imageData: imgSrc }))
         img.onload = async () => {
             const canvas = document.createElement("canvas")
             const ctx = canvas.getContext("2d")

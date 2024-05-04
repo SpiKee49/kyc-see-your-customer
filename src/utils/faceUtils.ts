@@ -64,11 +64,11 @@ export const startFaceDetection = (
 
         if (distance <= 0.5 || numberOfRetries === MAX_RETRIES) {
             const cnv = document.createElement("canvas")
-            cnv.width = video.getBoundingClientRect().width
-            cnv.height = video.getBoundingClientRect().height
+            cnv.width = video.videoWidth
+            cnv.height = video.videoHeight
             const ctx = cnv.getContext("2d")
-            ctx?.drawImage(video, 0, 0)
-            const screenShot = cnv.toDataURL("image/png", 1)
+            ctx!.drawImage(video, 0, 0, cnv.width, cnv.height)
+            const screenShot = cnv.toDataURL("image/png")
 
             store.dispatch(
                 updateFaceRecognitionResult({

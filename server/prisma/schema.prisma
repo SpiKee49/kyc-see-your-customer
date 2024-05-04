@@ -9,6 +9,40 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:.db/database.db"
+  provider = "postgresql"
+  url      = env("DB_CONNECTION")
+}
+
+model User {
+  id       String @id @default(uuid())
+  userName String @unique
+  password String
+}
+
+model Person {
+  birthNumber  String  @id @unique
+  firstName    String
+  lastName     String
+  gender       Gender
+  email        String
+  dateOfBirth  String
+  streetNumber String
+  city         String
+  ZIP          String
+  faceMatched  Boolean
+  status       Status  @default(processing)
+  idPicture    String // Assuming Blob is stored as a string (base64 encoded)
+  facePicture  String // Assuming Blob is stored as a string (base64 encoded)
+}
+
+enum Gender {
+  male
+  female
+}
+
+enum Status {
+  processing
+  redo
+  verified
+  prohibited
 }
