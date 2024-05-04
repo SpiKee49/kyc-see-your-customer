@@ -1,4 +1,4 @@
-import { prisma } from "../PrismaClient"
+import { prisma } from "../prisma"
 
 async function seed() {
     const admin = await prisma.user.upsert({

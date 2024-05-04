@@ -108,6 +108,6 @@
     "baseUrl": ".",
     "paths": {
       "@assets/*": ["../src/assets/*"]
-    }
-  }
+    },
+  },
 }
