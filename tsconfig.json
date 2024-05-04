@@ -8,7 +8,8 @@
     "baseUrl": ".",
     "paths": {
       "@assets/*": ["src/assets/*"],
-      "@utils/*": ["src/utils/*"]
+      "@utils/*": ["src/utils/*"],
+      "@api/*": ["src/api/*"]
     },
 
     /* Bundler mode */
@@ -25,6 +26,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "src/assets/types.ts"],
+  "include": ["src", "src/assets/types.ts","src/api/api.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

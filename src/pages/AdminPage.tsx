@@ -1,0 +1,39 @@
+import { useGetAllVerificationsQuery } from "@api/api"
+
+function AdminPage() {
+    const { data, error, isLoading } = useGetAllVerificationsQuery()
+
+    return (
+        <div className="min-w-[700px] w-full ">
+            <h1 className="text-center mb-5">Administracia</h1>
+            <div className="flex flex-col items-stretch justify-start gap-3">
+                <div className="flex flex-row flex-1 justify-start items-center [&>span]:flex-1 [&>span]:text-sm border-b-2 border-sky-600 px-4">
+                    <span>Rodné číslo</span>
+                    <span>Krstné meno</span>
+                    <span>Priezvisko</span>
+                    <span>Stav verifikacie</span>
+                </div>
+                {isLoading && <span>Načítavanie...</span>}
+                {error && (
+                    <span>
+                        Vyskytla sa chyba, skúste to znova neskôr prosím.
+                    </span>
+                )}
+                {data &&
+                    data.map(item => (
+                        <div
+                            key={item.birthNumber}
+                            className="flex flex-row flex-1 justify-start items-center [&>span]:flex-1 [&>span]:font-normal p-4 hover:bg-gray-100 rounded-xl cursor-pointer"
+                        >
+                            <span>{item.birthNumber}</span>
+                            <span>{item.firstName}</span>
+                            <span>{item.lastName}</span>
+                            <span>{item.status}</span>
+                        </div>
+                    ))}
+            </div>
+        </div>
+    )
+}
+
+export default AdminPage

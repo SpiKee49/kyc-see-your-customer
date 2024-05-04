@@ -39,11 +39,32 @@ export type VerificationRequestBody = {
     personalInformation: FormSchemaType
     documentInformation: {
         imageData: string
-        type: "id-card" | "driver-license"
     }
-    ocrResults: OcrResults | null
     faceRecognitionResult: {
         faceMatched: boolean
         imageData: string
     }
+}
+
+export type Verification = {
+    birthNumber: string
+    firstName: string
+    lastName: string
+    gender: "male" | "female"
+    email: string
+    dateOfBirth: string
+    streetNumber: string
+    city: string
+    ZIP: string
+    faceMatched: boolean
+    status: VerificationStatus
+    idPicture: string
+    facePicture: string
+}
+
+enum VerificationStatus {
+    PROCESSING = "processing",
+    REDO = "redo",
+    VERIFIED = "verified",
+    PROHIBITED = "prohibited"
 }
