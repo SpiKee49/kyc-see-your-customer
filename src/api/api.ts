@@ -8,10 +8,14 @@ export const globalApi = createApi({
     endpoints: builder => ({
         getAllVerifications: builder.query<Array<Partial<Verification>>, void>({
             query: () => `verification`
+        }),
+        getVerificationDetails: builder.query<Verification, string>({
+            query: id => `verification/${id}`
         })
     })
 })
 
 // Export hooks for usage in function components, which are
 // auto-generated based on the defined endpoints
-export const { useGetAllVerificationsQuery } = globalApi
+export const { useGetAllVerificationsQuery, useGetVerificationDetailsQuery } =
+    globalApi

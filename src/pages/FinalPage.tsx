@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { useAppSelector } from "../store/store"
 import { useNavigate } from "react-router-dom"
+import Profile from "@/components/Profile"
 
 export default function FinalPage() {
     const global = useAppSelector(state => state.global)
@@ -13,68 +14,18 @@ export default function FinalPage() {
     }, [])
 
     return (
-        <section className="w-full flex flex-row gap-9">
-            <div className="flex flex-1 h-full flex-col gap-2 items-stretch justify-start [&>small]:text-sm [&>small]:font-normal [&>small]:flex [&>small]:justify-between">
-                <h1>Osobné informácie</h1>
-                <h4>
-                    {global.personalInformation?.firstName}{" "}
-                    {global.personalInformation?.lastName}
-                </h4>
-                <small>
-                    <span>Rodné číslo:</span>{" "}
-                    <span className="font-bold">{global.birthNumber}</span>
-                </small>
-                <small>
-                    <span>E-mail:</span>{" "}
-                    <span className="font-bold">
-                        {global.personalInformation?.email}
-                    </span>
-                </small>
-                <small>
-                    <span>Dátum narodenia:</span>{" "}
-                    <span className="font-bold">
-                        {global.personalInformation?.dateOfBirth}
-                    </span>
-                </small>
-                <small>
-                    <span>Pohlavie:</span>{" "}
-                    <span className="font-bold">
-                        {global.personalInformation?.gender === "male"
-                            ? "Muž"
-                            : "Žena"}
-                    </span>
-                </small>
-                <small>
-                    <span>Ulica:</span>{" "}
-                    <span className="font-bold">
-                        {global.personalInformation?.streetNumber}
-                    </span>
-                </small>
-                <small>
-                    <span>Obec:</span>{" "}
-                    <span className="font-bold">
-                        {global.personalInformation?.city}
-                    </span>
-                </small>
-                <small>
-                    <span>PSČ:</span>{" "}
-                    <span className="font-bold">
-                        {global.personalInformation?.ZIP}
-                    </span>
-                </small>
-            </div>
-            <div className="flex flex-1 flex-col justify-center items-center">
-                <h1 className="text-base">Náhľad OP</h1>
-                <img
-                    className="rounded-xl"
-                    src={global.documentInformation.imageData}
-                />
-                <h1 className="text-base">Náhľad snímky z webkamery</h1>
-                <img
-                    className="rounded-xl"
-                    src={global.faceRecognitionResult.imageData}
-                />
-            </div>
-        </section>
+        <Profile
+            firstName={global.personalInformation!.firstName}
+            lastName={global.personalInformation!.lastName}
+            dateOfBirth={global.personalInformation!.dateOfBirth}
+            gender={global.personalInformation!.gender}
+            streetNumber={global.personalInformation!.streetNumber}
+            city={global.personalInformation!.city}
+            ZIP={global.personalInformation!.ZIP}
+            birthNumber={global.birthNumber!}
+            idPicture={global.documentInformation!.imageData}
+            facePicture={global.faceRecognitionResult!.imageData}
+            email={global.personalInformation!.email}
+        />
     )
 }
