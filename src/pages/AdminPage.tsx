@@ -1,17 +1,11 @@
 import { useGetAllVerificationsQuery } from "@api/api"
 import { Verification } from "@assets/types"
+import { verificationStatus } from "@utils/conversions"
 import { useNavigate } from "react-router-dom"
 
 function AdminPage() {
     const navigate = useNavigate()
     const { data, error, isLoading } = useGetAllVerificationsQuery()
-
-    const verificationStatus = {
-        processing: "Vyžaduje overenie",
-        redo: "Vyžaduje opätovné overenie",
-        verified: "Overený",
-        prohibited: "Zamietnutý"
-    }
 
     const dummyData: Array<Partial<Verification>> = data
         ? Array(10).fill(data[0])

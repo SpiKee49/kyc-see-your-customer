@@ -1,7 +1,9 @@
 import { Verification } from "@assets/types"
-import React from "react"
+import React, { ReactElement } from "react"
 
-function Profile(props: Partial<Verification>) {
+function Profile(
+    props: Partial<Verification> & { customElement?: ReactElement }
+) {
     return (
         <section className="w-full flex flex-row gap-9">
             <div className="flex flex-1 h-full flex-col gap-2 items-stretch justify-start [&>small]:text-sm [&>small]:font-normal [&>small]:flex [&>small]:justify-between">
@@ -53,6 +55,14 @@ function Profile(props: Partial<Verification>) {
                         <span className="font-bold">{props.ZIP}</span>
                     </small>
                 )}
+                {props.status && (
+                    <small>
+                        <span>Stav žiadosti:</span>{" "}
+                        <span className="font-bold">{props.status}</span>
+                    </small>
+                )}
+
+                {props.customElement}
             </div>
             <div className="flex flex-1 flex-col justify-center items-center">
                 {props.idPicture && (
