@@ -1,15 +1,14 @@
 import { useGetAllVerificationsQuery } from "@api/api"
-import { Verification } from "@assets/types"
-import { verificationStatus } from "@utils/conversions"
+import { VERIFICATION_STATUS_DICT } from "@utils/conversions"
 import { useNavigate } from "react-router-dom"
 
 function AdminPage() {
     const navigate = useNavigate()
     const { data, error, isLoading } = useGetAllVerificationsQuery()
 
-    const dummyData: Array<Partial<Verification>> = data
-        ? Array(10).fill(data[0])
-        : []
+    // const dummyData: Array<Partial<Verification>> = data
+    //     ? Array(10).fill(data[0])
+    //     : []
 
     function handleItemClick(id?: string) {
         if (id == null) return
@@ -33,8 +32,8 @@ function AdminPage() {
                         Vyskytla sa chyba, skúste to znova neskôr prosím.
                     </span>
                 )}
-                {data &&
-                    dummyData.map((item, index) => (
+                {data && data.length > 0 ? (
+                    data.map((item, index) => (
                         <div
                             key={item.birthNumber! + index}
                             className="flex flex-row flex-1 text-base justify-start items-center [&>span]:flex-1 [&>span]:font-normal p-4 hover:bg-gray-100 rounded-xl cursor-pointer"
@@ -44,10 +43,14 @@ function AdminPage() {
                             <span>{item.firstName}</span>
                             <span>{item.lastName}</span>
                             <span>
-                                {item.status && verificationStatus[item.status]}
+                                {item.status &&
+                                    VERIFICATION_STATUS_DICT[item.status]}
                             </span>
                         </div>
-                    ))}
+                    ))
+                ) : (
+                    <p className="w-full text-center">Žiadne záznamy</p>
+                )}
             </div>
         </div>
     )

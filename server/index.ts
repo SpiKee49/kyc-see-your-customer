@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express"
-import { VerificationRequestBody } from "@assets/types"
+import { Verification, VerificationRequestBody } from "@assets/types"
 import { Person } from "@prisma/client"
 import { prisma } from "./prisma"
 var cors = require("cors")
@@ -29,7 +29,7 @@ app.post(
             }
             const newVerificationRequest = await prisma.person.upsert({
                 where: { birthNumber: body.birthNumber },
-                update: { ...data },
+                update: { ...data, status: "processing" },
                 create: { ...data }
             })
 
@@ -78,7 +78,6 @@ app.get(
                     status: true
                 }
             })
-
             if (verification == null) {
                 res.status(404).json({
                     message: "Verification with such birth number doesnt exist."
@@ -86,7 +85,7 @@ app.get(
                 return
             }
 
-            res.status(200).json(verification)
+            res.status(200).json(verification.status)
         } catch (err) {
             res.status(500).json({ message: "Internal server error" })
             console.error(err)
@@ -94,7 +93,7 @@ app.get(
     }
 )
 
-app.get("/verification", async (req: Request, res: Response) => {
+app.get("/verification", async (_, res: Response) => {
     try {
         const results = await prisma.person.findMany({
             select: {
@@ -133,5 +132,38 @@ app.get("/verification/:id", async (req: Request, res: Response) => {
         console.error(err)
     }
 })
+
+app.put(
+    "/verification/:id",
+    async (
+        req: Request<{ id: string }, {}, Partial<Verification>>,
+        res: Response
+    ) => {
+        const id = req.params.id
+
+        try {
+            const result = await prisma.person.update({
+                where: {
+                    birthNumber: id
+                },
+                data: {
+                    ...req.body
+                }
+            })
+
+            if (result == null) {
+                res.status(404).json({
+                    message: "Verification with such birth number doesnt exist."
+                })
+                return
+            }
+
+            res.status(200).json(result)
+        } catch (err) {
+            res.status(500).json({ message: "Internal server error" })
+            console.error(err)
+        }
+    }
+)
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))

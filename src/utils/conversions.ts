@@ -6,7 +6,7 @@ export const toBase64 = (file: File) =>
         reader.onerror = reject
     })
 
-export const verificationStatus = {
+export const VERIFICATION_STATUS_DICT = {
     processing: "Vyžaduje overenie",
     redo: "Vyžaduje opätovné overenie",
     verified: "Overený",

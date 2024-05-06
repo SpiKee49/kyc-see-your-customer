@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react"
 import { startFaceDetection } from "../utils/faceUtils"
 import { useAppSelector } from "../store/store"
 import { useNavigate } from "react-router-dom"
-import { set } from "zod"
 
 export default function FaceRecognition() {
     const videoRef = useRef<HTMLVideoElement>(null)

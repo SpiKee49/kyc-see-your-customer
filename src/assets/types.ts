@@ -62,7 +62,7 @@ export type Verification = {
     facePicture: string
 }
 
-enum VerificationStatus {
+export enum VerificationStatus {
     PROCESSING = "processing",
     REDO = "redo",
     VERIFIED = "verified",

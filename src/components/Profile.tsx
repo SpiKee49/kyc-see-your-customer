@@ -1,5 +1,6 @@
 import { Verification } from "@assets/types"
-import React, { ReactElement } from "react"
+import { VERIFICATION_STATUS_DICT } from "@utils/conversions"
+import { ReactElement } from "react"
 
 function Profile(
     props: Partial<Verification> & { customElement?: ReactElement }
@@ -58,7 +59,9 @@ function Profile(
                 {props.status && (
                     <small>
                         <span>Stav žiadosti:</span>{" "}
-                        <span className="font-bold">{props.status}</span>
+                        <span className="font-bold">
+                            {VERIFICATION_STATUS_DICT[props.status]}
+                        </span>
                     </small>
                 )}
 
