@@ -28,59 +28,64 @@ export const startFaceDetection = (
         const img = new Image()
         img.src = idImageSrc
 
-        const detections = await faceapi
-            .detectAllFaces(video)
-            .withFaceLandmarks()
-            .withFaceExpressions()
-            .withFaceDescriptors()
+        let distance = 0
+        try {
+            const detections = await faceapi
+                .detectAllFaces(video)
+                .withFaceLandmarks()
+                .withFaceExpressions()
+                .withFaceDescriptors()
 
-        // console.log(detections)
-        // DRAW YOU FACE IN WEBCAM @ts-ingore
-        canvas.innerHTML = String(faceapi.createCanvasFromMedia(video))
-        faceapi.matchDimensions(canvas, {
-            width: video.getBoundingClientRect().width,
-            height: video.getBoundingClientRect().height
-        })
+            // console.log(detections)
+            // DRAW YOU FACE IN WEBCAM @ts-ingore
+            canvas.innerHTML = String(faceapi.createCanvasFromMedia(video))
+            faceapi.matchDimensions(canvas, {
+                width: video.getBoundingClientRect().width,
+                height: video.getBoundingClientRect().height
+            })
 
-        const resized = faceapi.resizeResults(detections, {
-            width: video.getBoundingClientRect().width,
-            height: video.getBoundingClientRect().height
-        })
+            const resized = faceapi.resizeResults(detections, {
+                width: video.getBoundingClientRect().width,
+                height: video.getBoundingClientRect().height
+            })
 
-        faceapi.draw.drawDetections(canvas, resized)
-        faceapi.draw.drawFaceExpressions(canvas, resized)
+            faceapi.draw.drawDetections(canvas, resized)
+            faceapi.draw.drawFaceExpressions(canvas, resized)
 
-        const fullFaceDescription = await faceapi.allFaces(img)
+            const fullFaceDescription = await faceapi.allFaces(img)
 
-        if (!fullFaceDescription) {
-            console.log(`no faces detected`)
-            return
-        }
+            if (!fullFaceDescription) {
+                console.log(`no faces detected`)
+                return
+            }
 
-        const distance = faceapi.euclideanDistance(
-            detections[0].descriptor,
-            fullFaceDescription[0].descriptor
-        )
-
-        if (distance <= 0.5 || numberOfRetries === MAX_RETRIES) {
-            const cnv = document.createElement("canvas")
-            cnv.width = video.videoWidth
-            cnv.height = video.videoHeight
-            const ctx = cnv.getContext("2d")
-            ctx!.drawImage(video, 0, 0, cnv.width, cnv.height)
-            const screenShot = cnv.toDataURL("image/png")
-
-            store.dispatch(
-                updateFaceRecognitionResult({
-                    faceMatched: distance <= 0.5,
-                    imageData: screenShot
-                })
+            distance = faceapi.euclideanDistance(
+                detections[0].descriptor,
+                fullFaceDescription[0].descriptor
             )
+        } catch (e) {
+            console.log(e)
+        } finally {
+            if (distance <= 0.5 || numberOfRetries === MAX_RETRIES) {
+                const cnv = document.createElement("canvas")
+                cnv.width = video.videoWidth
+                cnv.height = video.videoHeight
+                const ctx = cnv.getContext("2d")
+                ctx!.drawImage(video, 0, 0, cnv.width, cnv.height)
+                const screenShot = cnv.toDataURL("image/png")
 
-            router.navigate("/final")
-            clearInterval(interval)
+                store.dispatch(
+                    updateFaceRecognitionResult({
+                        faceMatched: distance <= 0.5,
+                        imageData: screenShot
+                    })
+                )
+
+                router.navigate("/final")
+                clearInterval(interval)
+            }
+            console.log(numberOfRetries)
+            numberOfRetries += 1
         }
-
-        numberOfRetries += 1
     }, 1000)
 }

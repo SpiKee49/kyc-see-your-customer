@@ -9,7 +9,8 @@ import Spinner from "@/components/Spinner"
 export default function FinalPage() {
     const global = useAppSelector(state => state.global)
     const navigate = useNavigate()
-    const [data, setData] = useState<Omit<Verification, "status">>()
+    const [data, setData] =
+        useState<Omit<Verification, "status" | "faceMatched">>()
     const [postNewVerificationRequest, { isLoading }] =
         usePostNewVerificationMutation()
 
@@ -35,7 +36,7 @@ export default function FinalPage() {
             }
         }).unwrap()
 
-        const { status, ...rest } = result
+        const { status, faceMatched, ...rest } = result
         setData(rest)
     }
 

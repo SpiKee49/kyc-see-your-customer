@@ -50,7 +50,7 @@ export const globalApi = createApi({
                 method: "PUT",
                 body: data
             }),
-            invalidatesTags: (result, error, { birthNumber }) => [
+            invalidatesTags: (_result, _error, { birthNumber }) => [
                 { type: "Verifications", birthNumber }
             ]
         }),
@@ -61,6 +61,16 @@ export const globalApi = createApi({
         >({
             query: data => ({
                 url: `verification`,
+                method: "POST",
+                body: data
+            })
+        }),
+        postUserLogin: builder.mutation<
+            string | null,
+            { userName: string; password: string }
+        >({
+            query: data => ({
+                url: `login`,
                 method: "POST",
                 body: data
             })
@@ -75,5 +85,6 @@ export const {
     useGetVerificationDetailsQuery,
     useUpdateVerificationMutation,
     usePostNewVerificationMutation,
-    useLazyGetVerificationStatusQuery
+    useLazyGetVerificationStatusQuery,
+    usePostUserLoginMutation
 } = globalApi

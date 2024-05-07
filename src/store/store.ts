@@ -6,10 +6,12 @@ import {
     useDispatch
 } from "react-redux"
 import { globalApi } from "@api/api"
+import adminSlice from "./slice/adminSlice"
 
 export const store = configureStore({
     reducer: {
         global: globalSlice,
+        admin: adminSlice,
         [globalApi.reducerPath]: globalApi.reducer
     },
     middleware: getDefaultMiddleware =>

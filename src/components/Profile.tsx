@@ -64,6 +64,14 @@ function Profile(
                         </span>
                     </small>
                 )}
+                {props.faceMatched && (
+                    <small>
+                        <span>Zhoda tvári</span>{" "}
+                        <span className="font-bold">
+                            {props.faceMatched ? "áno" : "nie"}
+                        </span>
+                    </small>
+                )}
 
                 {props.customElement}
             </div>

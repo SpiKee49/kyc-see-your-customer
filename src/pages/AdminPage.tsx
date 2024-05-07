@@ -1,14 +1,15 @@
+import { updateId } from "@/store/slice/adminSlice"
+import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useGetAllVerificationsQuery } from "@api/api"
 import { VERIFICATION_STATUS_DICT } from "@utils/conversions"
+import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 
 function AdminPage() {
     const navigate = useNavigate()
+    const dispatch = useAppDispatch()
+    const id = useAppSelector(state => state.admin.id)
     const { data, error, isLoading } = useGetAllVerificationsQuery()
-
-    // const dummyData: Array<Partial<Verification>> = data
-    //     ? Array(10).fill(data[0])
-    //     : []
 
     function handleItemClick(id?: string) {
         if (id == null) return
@@ -16,8 +17,25 @@ function AdminPage() {
         navigate(`/verification/${id}`)
     }
 
+    function handleLogout() {
+        dispatch(updateId(null))
+        navigate("/admin")
+    }
+
+    useEffect(() => {
+        if (id == null) {
+            navigate(`/admin`)
+        }
+    }, [])
+
     return (
         <div className="w-full">
+            <button
+                className="absolute left-5 top-5 p-2 hover:bg-white rounded-lg"
+                onClick={() => handleLogout()}
+            >
+                Odhlásiť sa
+            </button>
             <h1 className="text-center mb-5">Administracia</h1>
             <div className="flex flex-col items-stretch justify-start gap-3">
                 <div className="flex flex-row flex-1 justify-start items-center [&>span]:flex-1 [&>span]:text-sm border-b-2 border-sky-600 px-4">

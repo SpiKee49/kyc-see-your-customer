@@ -12,6 +12,7 @@ import { loadModels } from "./utils/faceUtils.ts"
 import FinalPage from "./pages/FinalPage.tsx"
 import AdminPage from "./pages/AdminPage.tsx"
 import AdminProfile from "./pages/AdminProfile.tsx"
+import AdminLogin from "./pages/AdminLogin.tsx"
 
 export const router = createBrowserRouter(
     [
@@ -37,6 +38,10 @@ export const router = createBrowserRouter(
         },
         {
             path: "/admin",
+            element: <AdminLogin />
+        },
+        {
+            path: "/admin-page",
             element: <AdminPage />
         },
         {

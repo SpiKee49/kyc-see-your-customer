@@ -54,12 +54,7 @@ app.post(
                 where: { ...credentials }
             })
 
-            if (user == null) {
-                res.status(404).json({ message: "Wrong username or password." })
-                return
-            }
-
-            res.status(200).json({ id: user.id })
+            res.status(200).json(user?.id ?? null)
         } catch (err) {
             res.status(500).json({ message: "Internal server error" })
             console.error(err)

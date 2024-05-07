@@ -8,26 +8,22 @@ services:
             - POSTGRES_PASSWORD=${DB_PASSWORD}
             - POSTGRES_USER=${DB_USER}
 
-    # backend:
-    #     env_file:
-    #         - ./.env
-    #     build:
-    #         context: ./server/
-    #         dockerfile: Dockerfile.server
-    #     restart: always
-    #     ports:
-    #         - 3000:3000
-    #     volumes:
-    #         - ./server:/app
-    #     depends_on:
-    #         - db
-    # fe:
-    #     build:
-    #         context: .
-    #         dockerfile: Dockerfile.dev
-    #     ports:
-    #         - "5173:5173"
-    #     volumes:
-    #         - ./src:/app/src
-    #     depends_on:
-    #         - backend
+    backend:
+        env_file:
+            - ./.env
+        build:
+            context: ./server/
+            dockerfile: Dockerfile.server
+        restart: always
+        ports:
+            - 3000:3000
+        depends_on:
+            - db
+    fe:
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        ports:
+            - "5173:5173"
+        depends_on:
+            - backend
