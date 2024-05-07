@@ -28,7 +28,7 @@ export const startFaceDetection = (
         const img = new Image()
         img.src = idImageSrc
 
-        let distance = 0
+        let distance = 1
         try {
             const detections = await faceapi
                 .detectAllFaces(video)

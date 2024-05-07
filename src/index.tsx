@@ -1,7 +1,7 @@
 import React, { useEffect } from "react"
 import ReactDOM from "react-dom/client"
 import Landing from "./pages/Landing.tsx"
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import { createHashRouter, RouterProvider } from "react-router-dom"
 import "./index.css"
 import InformationForm from "./pages/InformationForm.tsx"
 import { store } from "./store/store.ts"
@@ -14,7 +14,7 @@ import AdminPage from "./pages/AdminPage.tsx"
 import AdminProfile from "./pages/AdminProfile.tsx"
 import AdminLogin from "./pages/AdminLogin.tsx"
 
-export const router = createBrowserRouter(
+export const router = createHashRouter(
     [
         {
             path: "/",

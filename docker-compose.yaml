@@ -4,26 +4,28 @@ services:
         image: postgres:15-alpine
         ports:
             - 5432:5432
+        restart: unless-stopped
         environment:
             - POSTGRES_PASSWORD=${DB_PASSWORD}
             - POSTGRES_USER=${DB_USER}
+            - POSTGRES_DB=mydb
 
     backend:
         env_file:
             - ./.env
         build:
-            context: ./server/
-            dockerfile: Dockerfile.server
+            context: .
+            dockerfile: DockerFile.prod
         restart: always
         ports:
             - 3000:3000
         depends_on:
             - db
-    fe:
-        build:
-            context: .
-            dockerfile: Dockerfile.dev
-        ports:
-            - "5173:5173"
-        depends_on:
-            - backend
+    # fe:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile.prod
+    #     ports:
+    #         - "5173:5173"
+    #     depends_on:
+    #         - backend
