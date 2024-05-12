@@ -3,6 +3,7 @@ import { Verification, VerificationRequestBody } from "@assets/types"
 import { Person } from "@prisma/client"
 import { prisma } from "./prisma"
 import path from "path"
+import { birthNumberMatches } from "./utils"
 var cors = require("cors")
 const app = express()
 const port = 3000
@@ -15,6 +16,7 @@ app.post(
     "/verification",
     async (req: Request<{}, {}, VerificationRequestBody>, res: Response) => {
         const { body } = req
+        const { ocrResults } = body
         try {
             const data: Omit<Person, "status"> = {
                 birthNumber: body.birthNumber,
@@ -30,10 +32,28 @@ app.post(
                 idPicture: body.documentInformation.imageData,
                 facePicture: body.faceRecognitionResult.imageData
             }
+
+            const genderMatchesBirthNumber =
+                Number(data.birthNumber.slice(2, 4)) > 50
+                    ? data.gender === "female"
+                    : data.gender === "male"
+
+            const isValid =
+                data.faceMatched &&
+                ocrResults.firstName &&
+                ocrResults.lastName &&
+                ocrResults.dateOfBirth &&
+                ocrResults.birthNumber &&
+                birthNumberMatches(data.birthNumber, data.dateOfBirth) &&
+                genderMatchesBirthNumber
+
             const newVerificationRequest = await prisma.person.upsert({
                 where: { birthNumber: body.birthNumber },
-                update: { ...data, status: "processing" },
-                create: { ...data }
+                update: {
+                    ...data,
+                    status: isValid ? "verified" : "processing"
+                },
+                create: { ...data, status: isValid ? "verified" : "processing" }
             })
 
             res.status(200).json(newVerificationRequest)

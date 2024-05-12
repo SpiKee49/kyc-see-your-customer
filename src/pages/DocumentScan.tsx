@@ -25,7 +25,6 @@ function DocumentScan() {
     }, [])
 
     async function runOCR(screenshotBase64: string) {
-        setOcrIsRunning(true)
         const worker = await createWorker("slk")
         const ret = await worker.recognize(screenshotBase64)
         await worker.terminate()
@@ -52,13 +51,13 @@ function DocumentScan() {
             )}/${birthNumber.slice(6)}`
             analyze["birthNumber"] = polishedText.includes(birthNumberWithSlash)
             dispatch(updateOcrResults(analyze))
-            setOcrIsRunning(false)
         } catch (e) {
             console.log(e)
         }
     }
 
     async function handleImageUpload(event: ChangeEvent<HTMLInputElement>) {
+        setOcrIsRunning(true)
         const file = event.target.files![0]
 
         const img = new Image()
@@ -81,12 +80,10 @@ function DocumentScan() {
                 if (err) {
                     console.log("error")
                 }
-                console.log("results", results)
                 const data: Record<string, number> = {}
                 results.map((item: any) => {
                     data[item.label] = item.confidence
                 })
-                console.log("updated", data)
             })
 
             canvas.width = img.width
@@ -99,6 +96,7 @@ function DocumentScan() {
             // Set the grayscale image source
             const grayscaleSrc = canvas.toDataURL("image/png")
             await runOCR(grayscaleSrc)
+            setOcrIsRunning(false)
             navigate("/face-recognition")
         }
     }
@@ -123,8 +121,6 @@ function DocumentScan() {
                 />
             )}
 
-            {ocrIsRunning && <p>Loading...</p>}
-
             <input
                 ref={hiddenFileUploadRef}
                 type="file"
@@ -132,13 +128,14 @@ function DocumentScan() {
                 onChange={handleImageUpload}
             />
             <Button
+                disabled={ocrIsRunning}
                 handleClick={() => {
                     if (hiddenFileUploadRef.current) {
                         hiddenFileUploadRef.current.click()
                     }
                 }}
             >
-                Vložte súbor
+                {ocrIsRunning ? "Načítavanie..." : "Vložte súbor"}
             </Button>
         </div>
     )

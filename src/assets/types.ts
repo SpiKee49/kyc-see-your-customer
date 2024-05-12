@@ -44,6 +44,7 @@ export type VerificationRequestBody = {
         faceMatched: boolean
         imageData: string
     }
+    ocrResults: Record<string, boolean>
 }
 
 export type Verification = {

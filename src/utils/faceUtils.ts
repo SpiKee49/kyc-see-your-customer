@@ -84,7 +84,6 @@ export const startFaceDetection = (
                 router.navigate("/final")
                 clearInterval(interval)
             }
-            console.log(numberOfRetries)
             numberOfRetries += 1
         }
     }, 1000)

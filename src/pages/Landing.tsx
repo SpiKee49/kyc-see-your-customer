@@ -36,7 +36,7 @@ function Landing() {
             }
             if (status === VerificationStatus.PROHIBITED) {
                 alert(
-                    "Vaša požiadavka vykazovala pomerne veľké nejasnosti. Ak potrebujete pomoc, obrátťe sa na zákaznícku podporu."
+                    "Vaša požiadavka vykazovala pomerne veľké nejasnosti a z toho dôvodu bola označená ako zamietnutá. Ak potrebujete pomoc, obráťte sa na zákaznícku podporu."
                 )
                 return
             }

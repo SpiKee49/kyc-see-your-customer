@@ -33,7 +33,8 @@ export default function FinalPage() {
             faceRecognitionResult: {
                 faceMatched: global.faceRecognitionResult.faceMatched,
                 imageData: global.faceRecognitionResult.imageData ?? ""
-            }
+            },
+            ocrResults: global.ocrResults
         }).unwrap()
 
         const { status, faceMatched, ...rest } = result
