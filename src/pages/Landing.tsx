@@ -13,6 +13,7 @@ function Landing() {
     const dispatch = useAppDispatch()
     const [getVerificationStatus] = useLazyGetVerificationStatusQuery()
     const [buttonDisabled, setButtonDisabled] = useState(true)
+    const [termsAgreed, setTermsAgreed] = useState(false)
     const [valid, setValid] = useState(true)
 
     const navigate = useNavigate()
@@ -73,9 +74,23 @@ function Landing() {
                     Vložte rodné číslo bez '/ '
                 </small>
             </label>
+
+            <label className="font-normal text-base flex gap-2 justify-center my-3">
+                <input
+                    type="checkbox"
+                    checked={termsAgreed}
+                    onChange={() => setTermsAgreed(state => !state)}
+                    required
+                />
+                <span>
+                    Súhlasím so spracovaním rodného čísla za účelom overenia
+                    totožnosti
+                </span>
+            </label>
+
             <Button
                 handleClick={handleClick}
-                disabled={buttonDisabled}
+                disabled={buttonDisabled || !termsAgreed}
             >
                 Odoslať
             </Button>
