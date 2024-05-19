@@ -1,92 +1,93 @@
-# C. Technická dokumentácia
+# Technická dokumentácia
 
 <!-- toc -->
-- [C. Technická dokumentácia](#c-technická-dokumentácia)
-  - [Inštalácia a konfigurácia](#inštalácia-a-konfigurácia)
-    - [Predpoklady](#predpoklady)
-    - [Inštalačné kroky](#inštalačné-kroky)
-    - [Vstup do administračného rozhrania](#vstup-do-administračného-rozhrania)
-  - [Backendová časť](#backendová-časť)
-    - [Prehľad architektúry](#prehľad-architektúry)
-    - [Popis hlavných komponentov](#popis-hlavných-komponentov)
-    - [API dokumentácia](#api-dokumentácia)
-      - [POST `/verification`](#post-verification)
-        - [Vstup](#vstup)
-        - [Výstup](#výstup)
-      - [POST `/login`](#post-login)
-        - [Vstup](#vstup-1)
-        - [Výstup](#výstup-1)
-      - [GET `/verification/status/:birthNumber`](#get-verificationstatusbirthnumber)
-        - [Výstup](#výstup-2)
-      - [GET `/verification`](#get-verification)
-        - [Výstup](#výstup-3)
-      - [GET `/verification/:id`](#get-verificationid)
-        - [Výstup](#výstup-4)
-      - [PUT `/verification/:id`](#put-verificationid)
-        - [Vstup](#vstup-2)
-        - [Výstup](#výstup-5)
-    - [Databázova schéma](#databázova-schéma)
-  - [Frontendová časť](#frontendová-časť)
-    - [Prehľad architektúry](#prehľad-architektúry-1)
-    - [Stavové riadenie](#stavové-riadenie)
-    - [Konfigurácia Routera](#konfigurácia-routera)
-      - [Definícia Routera](#definícia-routera)
-      - [Prehľad Ciest](#prehľad-ciest)
-        - [1. Domovská Stránka](#1-domovská-stránka)
-        - [2. Osobné Informácie](#2-osobné-informácie)
-        - [3. Skenovanie Dokumentov](#3-skenovanie-dokumentov)
-        - [4. Rozpoznávanie Tvárí](#4-rozpoznávanie-tvárí)
-        - [5. Záverečná Stránka](#5-záverečná-stránka)
-        - [6. Admin Prihlásenie](#6-admin-prihlásenie)
-        - [7. Admin Stránka](#7-admin-stránka)
-        - [8. Verifikačný Profil](#8-verifikačný-profil)
-      - [Dynamické Parametre](#dynamické-parametre)
-      - [Základná URL](#základná-url)
-    - [API definícia pomocou RTK Query](#api-definícia-pomocou-rtk-query)
-      - [Importy](#importy)
-      - [Definícia služby](#definícia-služby)
-      - [Endpointy](#endpointy)
-        - [getAllVerifications](#getallverifications)
-        - [getVerificationDetails](#getverificationdetails)
-        - [getVerificationStatus](#getverificationstatus)
-        - [updateVerification](#updateverification)
-        - [postNewVerification](#postnewverification)
-        - [postUserLogin](#postuserlogin)
-      - [Export hookov](#export-hookov)
-    - [Adresár `/components`](#adresár-components)
-      - [Komponenty](#komponenty)
-    - [Adresár `/pages`](#adresár-pages)
-      - [Stránky](#stránky)
-    - [Pomocné funckie](#pomocné-funckie)
-      - [Funkcia: `startFaceDetection`](#funkcia-startfacedetection)
-      - [Parametre](#parametre)
-      - [Popis](#popis)
-      - [Kód](#kód)
-      - [Popis kódu](#popis-kódu)
-    - [Funkcia: `validateBirthNumber`](#funkcia-validatebirthnumber)
-      - [Parametre](#parametre-1)
-      - [Popis](#popis-1)
-      - [Kód](#kód-1)
-      - [Popis kódu](#popis-kódu-1)
-    - [Funkcia `toBase64`](#funkcia-tobase64)
-        - [Popis](#popis-2)
-        - [Parametre](#parametre-2)
-        - [Návratová hodnota](#návratová-hodnota)
-        - [Algoritmus](#algoritmus)
-        - [Kód](#kód-2)
-        - [Použitie](#použitie)
-    - [Funkcia: `handleImageUpload`](#funkcia-handleimageupload)
-      - [Popis](#popis-3)
-      - [Parametre](#parametre-3)
-      - [Návratová hodnota](#návratová-hodnota-1)
-      - [Algoritmus](#algoritmus-1)
-      - [Kód](#kód-3)
-    - [Funkcia: `runOCR`](#funkcia-runocr)
-      - [Popis](#popis-4)
-      - [Parametre](#parametre-4)
-      - [Návratová hodnota](#návratová-hodnota-2)
-      - [Algoritmus](#algoritmus-2)
-      - [Kód](#kód-4)
+
+- [Inštalácia a konfigurácia](#instalacia-a-konfiguracia)
+  * [Predpoklady](#predpoklady)
+  * [Inštalačné kroky](#instalacne-kroky)
+  * [Možný problém](#mozny-problem)
+  * [Vstup do administračného rozhrania](#vstup-do-administracneho-rozhrania)
+- [Backendová časť](#backendova-cast)
+  * [Prehľad architektúry](#prehlad-architektury)
+  * [Popis hlavných komponentov](#popis-hlavnych-komponentov)
+  * [API dokumentácia](#api-dokumentacia)
+    + [POST `/verification`](#post-verification)
+      - [Vstup](#vstup)
+      - [Výstup](#vystup)
+    + [POST `/login`](#post-login)
+      - [Vstup](#vstup-1)
+      - [Výstup](#vystup-1)
+    + [GET `/verification/status/:birthNumber`](#get-verificationstatusbirthnumber)
+      - [Výstup](#vystup-2)
+    + [GET `/verification`](#get-verification)
+      - [Výstup](#vystup-3)
+    + [GET `/verification/:id`](#get-verificationid)
+      - [Výstup](#vystup-4)
+    + [PUT `/verification/:id`](#put-verificationid)
+      - [Vstup](#vstup-2)
+      - [Výstup](#vystup-5)
+  * [Databázova schéma](#databazova-schema)
+- [Frontendová časť](#frontendova-cast)
+  * [Prehľad architektúry](#prehlad-architektury-1)
+  * [Stavové riadenie](#stavove-riadenie)
+  * [Konfigurácia Routera](#konfiguracia-routera)
+    + [Definícia Routera](#definicia-routera)
+    + [Prehľad Ciest](#prehlad-ciest)
+      - [1. Domovská Stránka](#1-domovska-stranka)
+      - [2. Osobné Informácie](#2-osobne-informacie)
+      - [3. Skenovanie Dokumentov](#3-skenovanie-dokumentov)
+      - [4. Rozpoznávanie Tvárí](#4-rozpoznavanie-tvari)
+      - [5. Záverečná Stránka](#5-zaverecna-stranka)
+      - [6. Admin Prihlásenie](#6-admin-prihlasenie)
+      - [7. Admin Stránka](#7-admin-stranka)
+      - [8. Verifikačný Profil](#8-verifikacny-profil)
+    + [Dynamické Parametre](#dynamicke-parametre)
+    + [Základná URL](#zakladna-url)
+  * [API definícia pomocou RTK Query](#api-definicia-pomocou-rtk-query)
+    + [Importy](#importy)
+    + [Definícia služby](#definicia-sluzby)
+    + [Endpointy](#endpointy)
+      - [getAllVerifications](#getallverifications)
+      - [getVerificationDetails](#getverificationdetails)
+      - [getVerificationStatus](#getverificationstatus)
+      - [updateVerification](#updateverification)
+      - [postNewVerification](#postnewverification)
+      - [postUserLogin](#postuserlogin)
+    + [Export hookov](#export-hookov)
+  * [Adresár `/components`](#adresar-components)
+    + [Komponenty](#komponenty)
+  * [Adresár `/pages`](#adresar-pages)
+    + [Stránky](#stranky)
+  * [Pomocné funkcie](#pomocne-funkcie)
+    + [Funkcia: `startFaceDetection`](#funkcia-startfacedetection)
+    + [Parametre](#parametre)
+    + [Popis](#popis)
+    + [Kód](#kod)
+    + [Popis kódu](#popis-kodu)
+  * [Funkcia: `validateBirthNumber`](#funkcia-validatebirthnumber)
+    + [Parametre](#parametre-1)
+    + [Popis](#popis-1)
+    + [Kód](#kod-1)
+    + [Popis kódu](#popis-kodu-1)
+  * [Funkcia `toBase64`](#funkcia-tobase64)
+      - [Popis](#popis-2)
+      - [Parametre](#parametre-2)
+      - [Návratová hodnota](#navratova-hodnota)
+      - [Algoritmus](#algoritmus)
+      - [Kód](#kod-2)
+      - [Použitie](#pouzitie)
+  * [Funkcia: `handleImageUpload`](#funkcia-handleimageupload)
+    + [Popis](#popis-3)
+    + [Parametre](#parametre-3)
+    + [Návratová hodnota](#navratova-hodnota-1)
+    + [Algoritmus](#algoritmus-1)
+    + [Kód](#kod-3)
+  * [Funkcia: `runOCR`](#funkcia-runocr)
+    + [Popis](#popis-4)
+    + [Parametre](#parametre-4)
+    + [Návratová hodnota](#navratova-hodnota-2)
+    + [Algoritmus](#algoritmus-2)
+    + [Kód](#kod-4)
 
 <!-- tocstop -->
 
@@ -124,8 +125,9 @@
     DB_CONNECTION=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/mydb #DO NOT CHANGE
     ```
 
-    Možné je konfigurovať všetky premenné, za ktorými sa neachádza komentár `DO NOT CHANGE`
+    Možné je konfigurovať všetky premenné, za ktorými sa nenachádza komentár `DO NOT CHANGE`
 
+<div class="page"/>
 
 3. **Spustenie aplikácie**
    1. Otvoríme si príkazovy riadok v zdrojovom adresári projektu (adresár v ktorom sa nachádza súbor `docker-compose.yaml` )
@@ -137,11 +139,23 @@
     ![alt text](image.png)
   
 4. **Vstup do aplikácie**
-  Po úspešnom procese inštalácie je aplikácie prístupna na adrese http://localhost:3000/
+  Po úspešnom procese inštalácie je aplikácie prístupna na adrese [http://localhost:3000/](http://localhost:3000/). Adresa bude prístupná do pár sekund po inštalácií, ale nie hneď, kvôli inicializácií projektu, ktorá môže chviľú trvať.
+
+### Možný problém
+V prípade, že po zadaní príkazu `docker-compose up -d` narazíte na chybu 
+```
+...
+docker endpoint for "default" not found.
+...
+```
+
+Postupujte podľa [tohto](https://stackoverflow.com/a/75549765) kometára, a následne skúste znova.
+
+<div class="page"/>
 
 ### Vstup do administračného rozhrania
 
-V prípade, že chceme vstupiť do administrašného rozhrania môžeme tak učiniť na adrese http://localhost:3000/#/admin
+V prípade, že chceme vstupiť do administrašného rozhrania môžeme tak učiniť na adrese [http://localhost:3000/#/admin](http://localhost:3000/#/admin)
 
 Aktuálne v aplikácií existuje iba jeden administratorský učet s menom aj heslom `admin`. Tento administrátor je vždy vytvorený pri inicializácií projektu pri spústeni súboru `/server/prisma/seed.ts`
 
@@ -162,22 +176,26 @@ async function seed() {
 }
 
 seed()
-
 ```
+
+<div class="page"/>
 
 ## Backendová časť
 
 ### Prehľad architektúry
 Backend je postavený na Node.js a používa Prisma ORM na správu databázy. Hlavné technológie zahŕňajú:
 
-- Node.js: JavaScript runtime na strane servera
-- TypeScript: Statické typovanie pre JavaScript
-- Prisma: ORM na interakciu s databázou
+- **Node.js**: JavaScript runtime na strane servera
+- **Express.js**: Framework na vytvorenie HTTP servera
+- **TypeScript**: Statické typovanie pre JavaScript
+- **Prisma**: ORM na interakciu s databázou
 
 ### Popis hlavných komponentov
 - **index.ts**: Hlavný vstupný bod servera. Nastavuje a spúšťa server.
 - **prisma.ts**: Konfigurácia Prisma, obsahuje inicializáciu ORM a pripojenie k databáze.
 - **utils.ts**: Obsahuje pomocné funkcie použité v rôznych častiach backendu.
+
+<div class="page"/>
 
 ### API dokumentácia
 
@@ -262,6 +280,8 @@ Endpoint na aktualizáciu verifikácie podľa rodného čísla.
 - **Status 404**: `{"message": "Verification with such birth number doesn't exist."}`
 - **Status 500**: `{"message": "Internal server error"}`
 
+<div class="page"/>
+
 ### Databázova schéma
 
 ```
@@ -309,6 +329,8 @@ enum Status {
 }
 
 ```
+
+<div class="page"/>
 
 ## Frontendová časť
 
@@ -436,9 +458,7 @@ export const router = createHashRouter(
 - **Base Name:** `/`
 - **Popis:** Vlastnosť `basename` je nastavená na `/`, čo znamená, že všetky cesty sú relatívne k rootu aplikácie.
 
----
-
-Táto dokumentácia poskytuje jasný prehľad ciest, ich účelov a komponentov, ktoré zobrazujú. Ak potrebujete ďalšie detaily alebo úpravy, dajte mi prosím vedieť!
+<div class="page"/>
 
 ### API definícia pomocou RTK Query
 
@@ -466,6 +486,8 @@ export const globalApi = createApi({
     tagTypes: ["Verifications"],
     endpoints: builder => ({
 ```
+
+<div class="page"/>
 
 #### Endpointy
 
@@ -512,6 +534,8 @@ getVerificationStatus: builder.query<VerificationStatus | null, string>({
     query: id => `verification/status/${id}`
 }),
 ```
+
+<div class="page"/>
 
 ##### updateVerification
 Aktualizácia verifikácie podľa ID.
@@ -605,7 +629,7 @@ Adresár `pages` obsahuje jednotlivé stránky aplikácie. Každý súbor v tomt
 - **InformationForm.tsx**: Stránka s formulárom na zadanie osobných informácií. Používa sa na zhromažďovanie údajov od používateľov.
 - **Landing.tsx**: Úvodná stránka aplikácie. Zobrazuje základné informácie a navigáciu k ďalším častiam aplikácie.
 
-### Pomocné funckie 
+### Pomocné funkcie 
 
 #### Funkcia: `startFaceDetection`
 
@@ -783,6 +807,9 @@ export function validateBirthNumber(birthNumber: string) {
     return false;
 }
 ```
+
+<div class="page"/>
+
 
 #### Popis kódu
 1. **Extrahovanie údajov**:
@@ -966,5 +993,3 @@ export async function runOCR(screenshotBase64: string) {
     }
 }
 ```
-
-
