@@ -8,11 +8,13 @@ import { useEffect, useState } from "react"
 import { VERIFICATION_STATUS_DICT } from "../utils/conversions"
 import { Verification, VerificationStatus } from "@assets/types"
 import Button from "@/components/Button"
+import { useAppSelector } from "@/store/store"
 
 export default function AdminProfile() {
     const navigate = useNavigate()
     const [selectedStatus, setSelectedStatus] = useState<VerificationStatus>()
     const [loadedData, setLoadedData] = useState<Verification>()
+    const adminId = useAppSelector(state => state.admin.id)
     const [buttonDisabled, setButtonDisabled] = useState(true)
 
     const { id } = useParams()
@@ -45,6 +47,12 @@ export default function AdminProfile() {
     if (!id) return <>Zadané nevhodné číslo ako parameter.</>
 
     const { data, error, isLoading } = useGetVerificationDetailsQuery(id)
+
+    useEffect(() => {
+        if (adminId == null) {
+            navigate(`/admin`)
+        }
+    }, [])
 
     useEffect(() => {
         setLoadedData(data)

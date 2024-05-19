@@ -1,7 +1,7 @@
 import { prisma } from "../prisma"
 
 async function seed() {
-    const admin = await prisma.user.upsert({
+    await prisma.user.upsert({
         where: {
             userName: "admin"
         },
@@ -11,8 +11,6 @@ async function seed() {
             password: "admin"
         }
     })
-
-    console.log({ admin })
 }
 
 seed()
